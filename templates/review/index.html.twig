@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Review queue{% endblock %}
+
+{% block body %}
+<div style="padding:16px;">
+    <h1>Review queue</h1>
+
+    <h2>Pending ({{ pending|length }})</h2>
+    {% if pending is empty %}
+        <p>Nothing to review.</p>
+    {% else %}
+        <ul>
+            {% for product in pending %}
+                <li>
+                    <a href="{{ path('app_review_show', {id: product.id}) }}">
+                        {{ product.productName }}
+                    </a>
+                    — {{ product.productType.type }}
+                    {% if product.releaseDate %}({{ product.releaseDate|date('Y') }}){% endif %}
+                    — submitted by {{ product.modifiedByUser.userIdentifier|slice(0,8) }}…
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if is_granted('ROLE_BARISTA') %}
+        <h2>Approved by reviewer ({{ approvedByReview|length }})</h2>
+        {% if approvedByReview is empty %}
+            <p>Nothing waiting for final approval.</p>
+        {% else %}
+            <ul>
+                {% for product in approvedByReview %}
+                    <li>
+                        <a href="{{ path('app_review_show', {id: product.id}) }}">
+                            {{ product.productName }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Review — {{ product.productName }}{% endblock %}
+
+{% block body %}
+<div style="padding:16px;">
+    <h1>{{ product.productName }}</h1>
+    <p>Status: <strong>{{ product.status.label() }}</strong></p>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <tr><th>Technical Name</th><td>{{ product.technicalName }}</td></tr>
+        <tr><th>Category</th><td>{{ product.productType.type }}</td></tr>
+        <tr><th>Release Date</th><td>{{ product.releaseDate ? product.releaseDate|date('Y-m-d') : '—' }}</td></tr>
+        <tr><th>Year Discontinued</th><td>{{ product.discontinuedYear ? product.discontinuedYear|date('Y') : '—' }}</td></tr>
+        <tr><th>Launch OS</th><td>{{ product.launchOS ?? '—' }}</td></tr>
+        <tr><th>Last Supported OS</th><td>{{ product.lastSupportedOS ?? '—' }}</td></tr>
+        <tr><th>Original Price</th><td>${{ product.originalPrice }}</td></tr>
+        <tr><th>Description</th><td>{{ product.description ?? '—' }}</td></tr>
+        <tr><th>Sources</th><td>{{ product.sources ?? '—' }}</td></tr>
+        <tr>
+            <th>Tags</th>
+            <td>{{ product.tags is not empty ? product.tags|map(t => t.name)|join(', ') : '—' }}</td>
+        </tr>
+    </table>
+
+    {% if product.rejectionComment %}
+        <p><strong>Previous rejection comment:</strong> {{ product.rejectionComment }}</p>
+    {% endif %}
+
+    <hr>
+
+    <h2>Actions</h2>
+
+    <form method="post" action="{{ path('app_review_approve', {id: product.id}) }}" style="display:inline;">
+        {% if is_granted('ROLE_BARISTA') %}
+            <button type="submit">Approve (final)</button>
+        {% else %}
+            <button type="submit">Approve (send to barista)</button>
+        {% endif %}
+    </form>
+
+    &nbsp;
+
+    <form method="post" action="{{ path('app_review_reject', {id: product.id}) }}" style="display:inline-block; vertical-align:top;">
+        <textarea name="rejection_comment" rows="2" cols="40" placeholder="Rejection reason (required)" required></textarea><br>
+        {% if is_granted('ROLE_BARISTA') %}
+            <button type="submit">Reject (final)</button>
+        {% else %}
+            <button type="submit">Reject (send back for review)</button>
+        {% endif %}
+    </form>
+
+    <p><a href="{{ path('app_review_index') }}">← Back to queue</a></p>
+</div>
+{% endblock %}
