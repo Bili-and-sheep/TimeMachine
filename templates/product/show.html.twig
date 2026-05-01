@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.productName }}{% endblock %}
+
+{% block body %}
+<div style="padding:16px;">
+    <h1>{{ product.productName }}</h1>
+    <p><em>{{ product.technicalName }}</em></p>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+        <tr><th>Category</th><td>{{ product.productType.type }}</td></tr>
+        <tr><th>Release Date</th><td>{{ product.releaseDate ? product.releaseDate|date('Y-m-d') : '—' }}</td></tr>
+        <tr><th>Year Discontinued</th><td>{{ product.discontinuedYear ? product.discontinuedYear|date('Y') : '—' }}</td></tr>
+        <tr><th>Launch OS</th><td>{{ product.launchOS ?? '—' }}</td></tr>
+        <tr><th>Last Supported OS</th><td>{{ product.lastSupportedOS ?? '—' }}</td></tr>
+        <tr><th>Original Price</th><td>${{ product.originalPrice }}</td></tr>
+        <tr><th>Inflated Price</th><td>{{ product.inflationAdjustedPrice ? '$' ~ product.inflationAdjustedPrice : '—' }}</td></tr>
+        <tr><th>Description</th><td>{{ product.description ?? '—' }}</td></tr>
+        <tr><th>Sources</th><td>{{ product.sources ?? '—' }}</td></tr>
+        <tr>
+            <th>Tags</th>
+            <td>
+                {% if product.tags is not empty %}
+                    {{ product.tags|map(t => t.name)|join(', ') }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    {% if product.images is not empty %}
+        <h2>Images</h2>
+        {% for image in product.images %}
+            <img src="{{ image.path }}" alt="{{ product.productName }}" style="max-width:300px; display:block; margin-bottom:8px;">
+        {% endfor %}
+    {% endif %}
+
+    <p><a href="{{ path('app_home') }}">← Back to home</a></p>
+
+    {% if is_granted('ROLE_BARISTA') %}
+        <form method="post" action="{{ path('app_product_delete', {id: product.id}) }}"
+              onsubmit="return confirm('Delete « {{ product.productName }} »? This cannot be undone.');">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ product.id) }}">
+            <button type="submit">Delete product</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

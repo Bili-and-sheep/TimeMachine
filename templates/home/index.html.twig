@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Apple Time Machine{% endblock %}
+
+{% block body %}
+<div style="padding:16px;">
+    <h1>Apple Time Machine</h1>
+    <p>Rediscovering the products that defined an era.</p>
+
+    {% if products is empty %}
+        <p>No approved products yet.</p>
+    {% else %}
+        <ul>
+            {% for product in products %}
+                <li>
+                    <a href="{{ path('app_product_show', {id: product.id}) }}">
+                        {{ product.productName }}
+                    </a>
+                    — {{ product.productType.type }}
+                    {% if product.releaseDate %}
+                        ({{ product.releaseDate|date('Y') }})
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}
