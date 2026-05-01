@@ -1,61 +1,304 @@
 {% extends 'base.html.twig' %}
 {% block title %}{{ product.productName }} — Apple Time Machine{% endblock %}
 
+{# ─── Color name → hex map for Apple palette ─── #}
+{% set colorMap = {
+    'space gray': '#535150', 'space grey': '#535150',
+    'silver': '#e3e4e5', 'gold': '#f0dfc0', 'rose gold': '#e8c6b5',
+    'midnight': '#1f2b35', 'starlight': '#f0ede8',
+    'black': '#1d1d1f', 'white': '#f5f5f7',
+    'product red': '#c62828', 'red': '#c62828',
+    'blue': '#3478c8', 'green': '#41a05b', 'yellow': '#f5e142',
+    'purple': '#7e4d8b', 'coral': '#e97462', 'pink': '#f4a7b2',
+    'midnight green': '#4c5b52', 'pacific blue': '#3c7fb8',
+    'sierra blue': '#6ea5c8', 'alpine green': '#556755',
+    'deep purple': '#4e3a6e', 'natural titanium': '#d5cec6',
+    'black titanium': '#3a3a3a', 'white titanium': '#e8e6e3',
+    'desert titanium': '#c5a97e', 'ultramarine': '#3c4e9e',
+    'teal': '#2e7d7e', 'orange': '#e07a35', 'slate': '#5a6877',
+    'dark cherry': '#5b1a2a',
+} %}
+
 {% block body %}
-<div class="max-w-3xl mx-auto px-6 py-12">
-    <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-2">{{ product.productType.type }}</p>
-    <h1 class="text-4xl font-bold tracking-tight text-apple-dark mb-1">{{ product.productName }}</h1>
-    <p class="text-apple-gray text-base mb-8">{{ product.technicalName }}</p>
 
-    {% if product.images is not empty %}
-        <img src="{{ product.images.first.path }}" alt="{{ product.productName }}"
-             class="max-w-sm w-full mx-auto block rounded-2xl mb-10">
-    {% endif %}
+{# ══════════════════════════════════════════════════
+   SECTION 1 — HERO
+   ══════════════════════════════════════════════════ #}
+<section class="bg-[#f5f5f7] pb-0 overflow-hidden">
+    <div class="max-w-[980px] mx-auto px-6 pt-16 text-center">
 
-    <table class="w-full text-sm border-collapse">
-        {% set rows = [
-            ['Release date',        product.releaseDate ? product.releaseDate|date('Y-m-d') : '—'],
-            ['Year discontinued',   product.discontinuedYear ? product.discontinuedYear|date('Y') : '—'],
-            ['Launch OS',           product.launchOS ?? '—'],
-            ['Last supported OS',   product.lastSupportedOS ?? '—'],
-            ['Original price',      product.originalPrice ? '$' ~ product.originalPrice : '—'],
-            ['Inflation-adjusted',  product.inflationAdjustedPrice ? '$' ~ product.inflationAdjustedPrice : '—'],
-            ['Description',         product.description ?? '—'],
-            ['Sources',             product.sources ?? '—'],
-            ['Tags',                product.tags is not empty ? product.tags|map(t => t.name)|join(', ') : '—'],
-        ] %}
-        {% for row in rows %}
-            <tr class="border-b border-apple-border last:border-0">
-                <th class="text-left py-3 pr-4 text-apple-gray font-medium w-44 align-top">{{ row[0] }}</th>
-                <td class="py-3 text-apple-dark">{{ row[1] }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+        {# Category label #}
+        <p class="text-sm font-semibold text-apple-gray tracking-tight mb-1">
+            {{ product.productType.type }}
+        </p>
 
-    <div class="mt-8 flex items-center gap-3 flex-wrap">
-        <a href="{{ app.request.headers.get('referer') ?: path('app_home') }}"
-           class="text-apple-blue text-sm hover:underline">← Back</a>
+        {# Product name #}
+        <h1 class="text-[56px] md:text-[80px] font-bold tracking-tight leading-[1.04] text-apple-dark mb-3">
+            {{ product.productName }}
+        </h1>
+
+        {# Technical name as tagline #}
+        {% if product.technicalName and product.technicalName != product.productName %}
+            <p class="text-xl text-apple-gray font-light mb-5">{{ product.technicalName }}</p>
+        {% endif %}
+
+        {# Discontinued badge + year range #}
+        <div class="flex items-center justify-center gap-3 mb-8 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 bg-apple-dark text-white text-xs font-semibold px-3 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
+                Discontinued
+                {% if product.discontinuedYear %} {{ product.discontinuedYear|date('Y') }}{% endif %}
+            </span>
+            {% if product.releaseDate %}
+                <span class="text-xs text-apple-gray">
+                    Released {{ product.releaseDate|date('Y') }}
+                    {% if product.discontinuedYear %}
+                        &nbsp;·&nbsp; {{ product.discontinuedYear|date('Y') - product.releaseDate|date('Y') }} years on sale
+                    {% endif %}
+                </span>
+            {% endif %}
+        </div>
+
+        {# Price quick-look #}
+        {% if product.originalPrice %}
+            <div class="flex items-baseline justify-center gap-3 mb-10">
+                <span class="text-2xl font-semibold text-apple-dark">${{ product.originalPrice }}</span>
+                <span class="text-apple-gray text-sm">at launch</span>
+                {% if product.inflationAdjustedPrice %}
+                    <span class="text-apple-gray text-sm">·</span>
+                    <span class="text-apple-dark text-sm font-medium">${{ product.inflationAdjustedPrice }} today</span>
+                {% endif %}
+            </div>
+        {% endif %}
     </div>
 
-    {% if is_granted('ROLE_BARISTA') %}
-        <div class="mt-8 pt-6 border-t border-apple-border flex items-center gap-3 flex-wrap">
-            <a href="{{ path('app_product_edit', {id: product.id}) }}"
-               class="px-4 py-2 text-sm border border-apple-blue text-apple-blue rounded-full hover:bg-apple-blue hover:text-white transition-all">
-                Edit
-            </a>
-            <a href="{{ path('app_product_history', {id: product.id}) }}"
-               class="px-4 py-2 text-sm border border-apple-border text-apple-gray rounded-full hover:border-apple-dark hover:text-apple-dark transition-all">
-                History
-            </a>
-            <form method="post" action="{{ path('app_product_delete', {id: product.id}) }}"
-                  onsubmit="return confirm('Delete « {{ product.productName }} »? This cannot be undone.');">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ product.id) }}">
-                <button type="submit"
-                        class="px-4 py-2 text-sm border border-red-400 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all cursor-pointer">
-                    Delete
-                </button>
-            </form>
+    {# Hero image — full width, sits at the bottom of the section #}
+    {% if product.images is not empty %}
+        <div class="flex justify-center">
+            <img src="{{ product.images.first.path }}"
+                 alt="{{ product.productName }}"
+                 class="max-w-[600px] w-full mx-auto block object-contain max-h-[420px]">
         </div>
+    {% else %}
+        <div class="h-12"></div>
     {% endif %}
+</section>
+
+{# ══════════════════════════════════════════════════
+   SECTION 2 — OPTIONS (colors, storage, etc.)
+   ══════════════════════════════════════════════════ #}
+{% if product.options %}
+<section class="border-t border-apple-border bg-white py-14">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-3xl font-bold tracking-tight text-apple-dark text-center mb-10">
+            Available configurations
+        </h2>
+
+        {% for optionKey, optionValues in product.options %}
+            {% set isColor = 'color' in optionKey|lower %}
+            <div class="mb-10">
+                <p class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-4">
+                    {{ optionKey|capitalize }}
+                    {% if isColor and optionValues is iterable %}
+                        <span class="normal-case font-normal ml-2 text-apple-dark">
+                            — {{ optionValues|first }}
+                        </span>
+                    {% endif %}
+                </p>
+
+                {% if isColor and optionValues is iterable %}
+                    {# Color swatches #}
+                    <div class="flex flex-wrap gap-6">
+                        {% for color in optionValues %}
+                            {% set colorKey = color|lower %}
+                            {% set hex = colorMap[colorKey] ?? '#d2d2d7' %}
+                            <div class="flex flex-col items-center gap-2 group cursor-default">
+                                <div class="w-8 h-8 rounded-full border-2 border-white ring-2 ring-apple-border group-hover:ring-apple-dark transition-all"
+                                     style="background-color: {{ hex }}"></div>
+                                <span class="text-[11px] text-apple-gray group-hover:text-apple-dark transition-colors whitespace-nowrap">
+                                    {{ color }}
+                                </span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% elseif optionValues is iterable %}
+                    {# Pill options (storage, size, etc.) #}
+                    <div class="flex flex-wrap gap-2">
+                        {% for value in optionValues %}
+                            <span class="px-4 py-2 border border-apple-border rounded-xl text-sm text-apple-dark hover:border-apple-dark transition-colors cursor-default font-medium">
+                                {{ value }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-sm text-apple-dark">{{ optionValues }}</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{# ══════════════════════════════════════════════════
+   SECTION 3 — OS SUPPORT TIMELINE
+   ══════════════════════════════════════════════════ #}
+{% if product.launchOS or product.lastSupportedOS %}
+<section class="border-t border-apple-border bg-[#f5f5f7] py-14">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-6">Software support</h2>
+
+        <div class="flex items-center gap-4 flex-wrap">
+            {% if product.launchOS %}
+                <div class="text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-apple-gray mb-1">Launched with</p>
+                    <span class="inline-block bg-apple-dark text-white text-sm font-medium px-4 py-1.5 rounded-full">
+                        {{ product.launchOS }}
+                    </span>
+                </div>
+            {% endif %}
+
+            {% if product.launchOS and product.lastSupportedOS %}
+                <div class="flex-1 min-w-[60px]">
+                    <div class="h-px bg-gradient-to-r from-apple-dark to-apple-gray relative">
+                        <span class="absolute right-0 top-1/2 -translate-y-1/2 text-apple-gray text-xs">›</span>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if product.lastSupportedOS %}
+                <div class="text-center">
+                    <p class="text-[10px] uppercase tracking-widest text-apple-gray mb-1">Last supported</p>
+                    <span class="inline-block bg-apple-gray text-white text-sm font-medium px-4 py-1.5 rounded-full">
+                        {{ product.lastSupportedOS }}
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ══════════════════════════════════════════════════
+   SECTION 4 — TECH SPECS
+   ══════════════════════════════════════════════════ #}
+<section class="border-t border-apple-border bg-white py-14">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-3xl font-bold tracking-tight text-apple-dark mb-8">Tech Specs</h2>
+
+        <dl class="divide-y divide-apple-border">
+            {% set specs = [
+                ['Category',          product.productType.type],
+                ['Release date',      product.releaseDate ? product.releaseDate|date('F j, Y') : null],
+                ['Year discontinued', product.discontinuedYear ? product.discontinuedYear|date('Y') : null],
+                ['Launch OS',         product.launchOS ? product.launchOS|string : null],
+                ['Last supported OS', product.lastSupportedOS ? product.lastSupportedOS|string : null],
+                ['Original price',    product.originalPrice ? '$' ~ product.originalPrice : null],
+                ['Inflation-adjusted','$' ~ (product.inflationAdjustedPrice ?? '—') ~ ' (today)'],
+            ] %}
+            {% for spec in specs %}
+                {% if spec[1] %}
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-6">
+                        <dt class="text-sm font-medium text-apple-gray">{{ spec[0] }}</dt>
+                        <dd class="mt-1 sm:mt-0 sm:col-span-2 text-sm text-apple-dark">{{ spec[1] }}</dd>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if product.description %}
+                <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-6">
+                    <dt class="text-sm font-medium text-apple-gray">Description</dt>
+                    <dd class="mt-1 sm:mt-0 sm:col-span-2 text-sm text-apple-dark leading-relaxed">
+                        {{ product.description }}
+                    </dd>
+                </div>
+            {% endif %}
+        </dl>
+    </div>
+</section>
+
+{# ══════════════════════════════════════════════════
+   SECTION 5 — TAGS
+   ══════════════════════════════════════════════════ #}
+{% if product.tags is not empty %}
+<section class="border-t border-apple-border bg-[#f5f5f7] py-12">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-4">Archive tags</h2>
+        <div class="flex flex-wrap gap-2">
+            {% for tag in product.tags %}
+                <span class="px-3 py-1 bg-white border border-apple-border text-apple-dark text-xs rounded-full font-medium">
+                    {{ tag.name }}
+                </span>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ══════════════════════════════════════════════════
+   SECTION 6 — SOURCES
+   ══════════════════════════════════════════════════ #}
+{% if product.sources %}
+<section class="border-t border-apple-border bg-white py-12">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-3">Sources</h2>
+        <p class="text-sm text-apple-gray leading-relaxed">{{ product.sources }}</p>
+    </div>
+</section>
+{% endif %}
+
+{# ══════════════════════════════════════════════════
+   SECTION 7 — ADDITIONAL IMAGES
+   ══════════════════════════════════════════════════ #}
+{% if product.images|length > 1 %}
+<section class="border-t border-apple-border bg-[#f5f5f7] py-12">
+    <div class="max-w-[980px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-6">Gallery</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {% for image in product.images %}
+                <img src="{{ image.path }}" alt="{{ product.productName }}"
+                     class="w-full aspect-square object-contain bg-white rounded-2xl p-4">
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ══════════════════════════════════════════════════
+   STICKY FOOTER — navigation + barista actions
+   ══════════════════════════════════════════════════ #}
+<div class="sticky bottom-0 z-40 bg-white/80 backdrop-blur-xl border-t border-apple-border">
+    <div class="max-w-[980px] mx-auto px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-1 min-w-0">
+            <span class="text-sm font-semibold text-apple-dark truncate">{{ product.productName }}</span>
+            {% if product.originalPrice %}
+                <span class="text-apple-gray text-sm hidden sm:inline">&nbsp;·&nbsp; ${{ product.originalPrice }}</span>
+            {% endif %}
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap shrink-0">
+            <a href="{{ app.request.headers.get('referer') ?: path('app_home') }}"
+               class="text-apple-blue text-sm hover:underline">← Back</a>
+
+            {% if is_granted('ROLE_BARISTA') %}
+                <a href="{{ path('app_product_edit', {id: product.id}) }}"
+                   class="px-4 py-1.5 text-sm border border-apple-blue text-apple-blue rounded-full hover:bg-apple-blue hover:text-white transition-all">
+                    Edit
+                </a>
+                <a href="{{ path('app_product_history', {id: product.id}) }}"
+                   class="px-4 py-1.5 text-sm border border-apple-border text-apple-gray rounded-full hover:border-apple-dark hover:text-apple-dark transition-all">
+                    History
+                </a>
+                <form method="post" action="{{ path('app_product_delete', {id: product.id}) }}"
+                      onsubmit="return confirm('Delete « {{ product.productName }} »? This cannot be undone.');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ product.id) }}">
+                    <button type="submit"
+                            class="px-4 py-1.5 text-sm border border-red-300 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all cursor-pointer">
+                        Delete
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
 </div>
+
 {% endblock %}
