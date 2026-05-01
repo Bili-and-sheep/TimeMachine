@@ -61,6 +61,37 @@ final class ProductController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/edit', name: 'app_product_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_BARISTA')]
+    public function edit(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response
+    {
+        $product = $productRepository->find($id);
+
+        if (!$product) {
+            throw $this->createNotFoundException('Product not found.');
+        }
+
+        $form = $this->createForm(ProductFormType::class, $product);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** @var User $user */
+            $user = $this->getUser();
+            $product->setModifiedByUser($user);
+            $em->persist(new ModificationHistory($product, $user, ModificationAction::Edited));
+            $em->flush();
+
+            $this->addFlash('success', 'Product updated.');
+
+            return $this->redirectToRoute('app_product_show', ['id' => $id]);
+        }
+
+        return $this->render('product/edit.html.twig', [
+            'product' => $product,
+            'form'    => $form,
+        ]);
+    }
+
     #[Route('/{id}/delete', name: 'app_product_delete', methods: ['POST'])]
     #[IsGranted('ROLE_BARISTA')]
     public function delete(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response

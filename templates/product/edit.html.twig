@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit — {{ product.productName }}{% endblock %}
+
+{% block body %}
+<div style="padding:16px;">
+    <h1>Edit product</h1>
+    <p><em>{{ product.productName }}</em> — status: <strong>{{ product.status.label() }}</strong></p>
+
+    {{ form_start(form) }}
+        {{ form_row(form.ProductName) }}
+        {{ form_row(form.TechnicalName) }}
+        {{ form_row(form.ProductType) }}
+        {{ form_row(form.ReleaseDate) }}
+        {{ form_row(form.DiscontinuedYear) }}
+        {{ form_row(form.LaunchOS) }}
+        {{ form_row(form.LastSupportedOS) }}
+        {{ form_row(form.OriginalPrice) }}
+        {{ form_row(form.Description) }}
+        {{ form_row(form.Sources) }}
+        {{ form_row(form.tags) }}
+
+        <button type="submit">Save changes</button>
+    {{ form_end(form) }}
+
+    <p><a href="{{ path('app_product_show', {id: product.id}) }}">← Cancel</a></p>
+</div>
+{% endblock %}
