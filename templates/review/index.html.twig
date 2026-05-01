@@ -1,44 +1,63 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Review queue{% endblock %}
+{% block title %}Review queue — Apple Time Machine{% endblock %}
 
 {% block body %}
-<div style="padding:16px;">
-    <h1>Review queue</h1>
+<div class="max-w-3xl mx-auto px-6 py-12">
+    <h1 class="text-4xl font-bold tracking-tight text-apple-dark mb-8">Review queue</h1>
 
-    <h2>Pending ({{ pending|length }})</h2>
-    {% if pending is empty %}
-        <p>Nothing to review.</p>
-    {% else %}
-        <ul>
-            {% for product in pending %}
-                <li>
-                    <a href="{{ path('app_review_show', {id: product.id}) }}">
-                        {{ product.productName }}
-                    </a>
-                    — {{ product.productType.type }}
-                    {% if product.releaseDate %}({{ product.releaseDate|date('Y') }}){% endif %}
-                    — submitted by {{ product.modifiedByUser.userIdentifier|slice(0,8) }}…
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-
-    {% if is_granted('ROLE_BARISTA') %}
-        <h2>Approved by reviewer ({{ approvedByReview|length }})</h2>
-        {% if approvedByReview is empty %}
-            <p>Nothing waiting for final approval.</p>
+    <section class="mb-10">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray mb-3">
+            Pending <span class="ml-1 font-semibold text-apple-dark">{{ pending|length }}</span>
+        </h2>
+        {% if pending is empty %}
+            <p class="text-apple-gray text-sm">Nothing to review.</p>
         {% else %}
-            <ul>
-                {% for product in approvedByReview %}
+            <ul class="divide-y divide-apple-border border border-apple-border rounded-xl overflow-hidden">
+                {% for product in pending %}
                     <li>
-                        <a href="{{ path('app_review_show', {id: product.id}) }}">
-                            {{ product.productName }}
+                        <a href="{{ path('app_review_show', {id: product.id}) }}"
+                           class="flex items-center justify-between px-5 py-4 hover:bg-apple-light transition-colors group">
+                            <div>
+                                <p class="text-sm font-medium text-apple-dark group-hover:text-apple-blue transition-colors">
+                                    {{ product.productName }}
+                                </p>
+                                <p class="text-xs text-apple-gray mt-0.5">
+                                    {{ product.productType.type }}
+                                    {% if product.releaseDate %} · {{ product.releaseDate|date('Y') }}{% endif %}
+                                    · by {{ product.modifiedByUser.userIdentifier|slice(0,8) }}…
+                                </p>
+                            </div>
+                            <span class="text-apple-gray text-sm">›</span>
                         </a>
                     </li>
                 {% endfor %}
             </ul>
         {% endif %}
+    </section>
+
+    {% if is_granted('ROLE_BARISTA') %}
+        <section>
+            <h2 class="text-xs uppercase tracking-widest text-apple-gray mb-3">
+                Approved by reviewer <span class="ml-1 font-semibold text-apple-dark">{{ approvedByReview|length }}</span>
+            </h2>
+            {% if approvedByReview is empty %}
+                <p class="text-apple-gray text-sm">Nothing waiting for final approval.</p>
+            {% else %}
+                <ul class="divide-y divide-apple-border border border-apple-border rounded-xl overflow-hidden">
+                    {% for product in approvedByReview %}
+                        <li>
+                            <a href="{{ path('app_review_show', {id: product.id}) }}"
+                               class="flex items-center justify-between px-5 py-4 hover:bg-apple-light transition-colors group">
+                                <p class="text-sm font-medium text-apple-dark group-hover:text-apple-blue transition-colors">
+                                    {{ product.productName }}
+                                </p>
+                                <span class="text-apple-gray text-sm">›</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
     {% endif %}
 </div>
 {% endblock %}
