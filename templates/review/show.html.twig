@@ -50,6 +50,15 @@
         {% endif %}
     </form>
 
+    {% if not is_granted('ROLE_BARISTA') %}
+        <hr>
+        <h2>Request modification</h2>
+        <form method="post" action="{{ path('app_review_request_modification', {id: product.id}) }}">
+            <textarea name="modification_comment" rows="3" cols="50" placeholder="Describe the changes needed (required)" required></textarea><br>
+            <button type="submit">Request modification</button>
+        </form>
+    {% endif %}
+
     <p><a href="{{ path('app_review_index') }}">← Back to queue</a></p>
 </div>
 {% endblock %}
