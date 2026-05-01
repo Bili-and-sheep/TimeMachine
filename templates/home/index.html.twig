@@ -3,26 +3,35 @@
 {% block title %}Apple Time Machine{% endblock %}
 
 {% block body %}
-<div style="padding:16px;">
-    <h1>Apple Time Machine</h1>
-    <p>Rediscovering the products that defined an era.</p>
-
-    {% if products is empty %}
-        <p>No approved products yet.</p>
-    {% else %}
-        <ul>
-            {% for product in products %}
-                <li>
-                    <a href="{{ path('app_product_show', {id: product.id}) }}">
-                        {{ product.productName }}
-                    </a>
-                    — {{ product.productType.type }}
-                    {% if product.releaseDate %}
-                        ({{ product.releaseDate|date('Y') }})
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-</div>
+{% if product %}
+    <section class="hero">
+        <p class="hero__eyebrow">{{ product.productType.type }}</p>
+        <h1 class="hero__title">{{ product.productName }}</h1>
+        {% if product.description %}
+            <p class="hero__sub">{{ product.description|slice(0, 120) }}{% if product.description|length > 120 %}…{% endif %}</p>
+        {% endif %}
+        {% if product.releaseDate %}
+            <p class="hero__sub" style="font-size:14px;">
+                {{ product.releaseDate|date('Y') }}
+                {% if product.discontinuedYear %} — {{ product.discontinuedYear|date('Y') }}{% endif %}
+            </p>
+        {% endif %}
+        <div class="hero__links">
+            <a href="{{ path('app_product_show', {id: product.id}) }}">View archive entry ›</a>
+            <a class="secondary" href="{{ path('app_browse', {category: 'iphone'}) }}">Browse all ›</a>
+        </div>
+        {% if product.images is not empty %}
+            <img class="hero__image" src="{{ product.images.first.path }}" alt="{{ product.productName }}">
+        {% endif %}
+    </section>
+{% else %}
+    <div class="hero__empty">
+        <p>The archive is empty for now.</p>
+        {% if is_granted('ROLE_USER') %}
+            <p style="margin-top:12px;"><a href="{{ path('app_product_new') }}" style="color:#0071e3;">Be the first to submit a product ›</a></p>
+        {% else %}
+            <p style="margin-top:12px;"><a href="{{ path('app_register') }}" style="color:#0071e3;">Create an account to contribute ›</a></p>
+        {% endif %}
+    </div>
+{% endif %}
 {% endblock %}

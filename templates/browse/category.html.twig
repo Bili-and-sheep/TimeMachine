@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% set labels = {
+    'iphone': 'iPhone',
+    'mac': 'Mac',
+    'ipad': 'iPad',
+    'watch': 'Apple Watch',
+    'tv': 'Apple TV',
+    'accessories': 'Accessories',
+    'other': 'Other'
+} %}
+
+{% block title %}{{ labels[category] ?? category|capitalize }} — Apple Time Machine{% endblock %}
+
+{% block body %}
+<div class="browse-header">
+    <h1>{{ labels[category] ?? category|capitalize }}</h1>
+</div>
+
+{% if products is empty %}
+    <div class="browse-empty">
+        <p>No products archived in this category yet.</p>
+        {% if is_granted('ROLE_USER') %}
+            <p style="margin-top:12px;"><a href="{{ path('app_product_new') }}" style="color:#0071e3;">Submit the first one ›</a></p>
+        {% endif %}
+    </div>
+{% else %}
+    <div class="product-grid">
+        {% for product in products %}
+            <a class="product-card" href="{{ path('app_product_show', {id: product.id}) }}">
+                {% if product.images is not empty %}
+                    <img src="{{ product.images.first.path }}" alt="{{ product.productName }}"
+                         style="width:120px; height:120px; object-fit:contain; margin-bottom:16px;">
+                {% else %}
+                    <div style="width:120px; height:120px; margin:0 auto 16px; background:#f0f0f0; border-radius:8px;"></div>
+                {% endif %}
+                <p class="product-card__type">{{ product.productType.type }}</p>
+                <p class="product-card__name">{{ product.productName }}</p>
+                <p class="product-card__year">
+                    {% if product.releaseDate %}{{ product.releaseDate|date('Y') }}{% endif %}
+                    {% if product.discontinuedYear %} — {{ product.discontinuedYear|date('Y') }}{% endif %}
+                </p>
+                <span class="product-card__link">Learn more ›</span>
+            </a>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}
