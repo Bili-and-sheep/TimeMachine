@@ -32,16 +32,9 @@ class User implements UserInterface
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'ModifiedByUser')]
     private Collection $products;
 
-    /**
-     * @var Collection<int, ModificationHistory>
-     */
-    #[ORM\ManyToMany(targetEntity: ModificationHistory::class, inversedBy: 'users')]
-    private Collection $ModificationHisotry;
-
     public function __construct()
     {
         $this->products = new ArrayCollection();
-        $this->ModificationHisotry = new ArrayCollection();
     }
 
     public function getId(): ?int { return $this->id; }
@@ -104,27 +97,4 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, ModificationHistory>
-     */
-    public function getModificationHisotry(): Collection
-    {
-        return $this->ModificationHisotry;
-    }
-
-    public function addModificationHisotry(ModificationHistory $modificationHisotry): static
-    {
-        if (!$this->ModificationHisotry->contains($modificationHisotry)) {
-            $this->ModificationHisotry->add($modificationHisotry);
-        }
-
-        return $this;
-    }
-
-    public function removeModificationHisotry(ModificationHistory $modificationHisotry): static
-    {
-        $this->ModificationHisotry->removeElement($modificationHisotry);
-
-        return $this;
-    }
 }

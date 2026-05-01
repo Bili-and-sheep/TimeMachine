@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}History — {{ product.productName }}{% endblock %}
+
+{% block body %}
+<div style="padding:16px;">
+    <h1>Modification history</h1>
+    <h2>{{ product.productName }}</h2>
+
+    {% if entries is empty %}
+        <p>No history recorded yet.</p>
+    {% else %}
+        <table border="1" cellpadding="6" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Action</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries %}
+                    <tr>
+                        <td>{{ entry.date|date('Y-m-d H:i') }}</td>
+                        <td>{{ entry.user.userIdentifier|slice(0,8) }}…</td>
+                        <td>{{ entry.action.label() }}</td>
+                        <td>{{ entry.comment ?? '—' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    <p><a href="{{ path('app_product_show', {id: product.id}) }}">← Back to product</a></p>
+</div>
+{% endblock %}

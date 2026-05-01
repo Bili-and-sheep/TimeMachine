@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\ModificationHistory;
+use App\Entity\User;
+use App\Enum\ModificationAction;
 use App\Enum\Role;
 use App\Enum\SubmissionStatus;
 use App\Repository\ProductRepository;
@@ -64,6 +67,9 @@ final class ReviewController extends AbstractController
             $product->setStatus(SubmissionStatus::ApprovedByReview);
         }
 
+        /** @var User $user */
+        $user = $this->getUser();
+        $em->persist(new ModificationHistory($product, $user, ModificationAction::StatusChanged, $product->getStatus()->label()));
         $em->flush();
 
         $this->addFlash('success', 'Product approved.');
@@ -95,6 +101,10 @@ final class ReviewController extends AbstractController
         }
 
         $product->setRejectionComment($comment);
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $em->persist(new ModificationHistory($product, $user, ModificationAction::StatusChanged, $product->getStatus()->label() . ': ' . $comment));
         $em->flush();
 
         $this->addFlash('success', 'Product rejected.');
