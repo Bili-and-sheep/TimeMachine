@@ -5,6 +5,7 @@ namespace App\Enum;
 enum SubmissionStatus: string
 {
     case Pending = 'pending';
+    case NeedsChanges = 'needs_changes';
     case ApprovedByReview = 'approved_by_review';
     case Approved = 'approved';
     case RejectedByReview = 'rejected_by_review';
@@ -19,6 +20,7 @@ enum SubmissionStatus: string
     {
         return match($this) {
             self::Pending           => 'Pending',
+            self::NeedsChanges      => 'Needs changes',
             self::ApprovedByReview  => 'Approved by reviewer',
             self::Approved          => 'Approved',
             self::RejectedByReview  => 'Rejected by reviewer',
