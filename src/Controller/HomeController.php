@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Enum\SubmissionStatus;
 use App\Repository\ProductRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,13 +12,8 @@ final class HomeController extends AbstractController
     #[Route('/', name: 'app_home')]
     public function index(ProductRepository $productRepository): Response
     {
-        $products = $productRepository->findBy(
-            ['status' => SubmissionStatus::Approved],
-            ['id' => 'DESC']
-        );
-
         return $this->render('home/index.html.twig', [
-            'products' => $products,
+            'product' => $productRepository->findLastApproved(),
         ]);
     }
 }
