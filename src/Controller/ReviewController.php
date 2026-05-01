@@ -111,4 +111,34 @@ final class ReviewController extends AbstractController
 
         return $this->redirectToRoute('app_review_index');
     }
+
+    #[Route('/{id}/request-modification', name: 'app_review_request_modification', methods: ['POST'])]
+    public function requestModification(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response
+    {
+        $product = $productRepository->find($id);
+
+        if (!$product) {
+            throw $this->createNotFoundException('Product not found.');
+        }
+
+        $comment = trim($request->request->get('modification_comment', ''));
+
+        if ($comment === '') {
+            $this->addFlash('error', 'A comment explaining the requested changes is required.');
+
+            return $this->redirectToRoute('app_review_show', ['id' => $id]);
+        }
+
+        $product->setStatus(SubmissionStatus::NeedsChanges);
+        $product->setRejectionComment($comment);
+
+        /** @var User $user */
+        $user = $this->getUser();
+        $em->persist(new ModificationHistory($product, $user, ModificationAction::StatusChanged, 'Modification requested: ' . $comment));
+        $em->flush();
+
+        $this->addFlash('success', 'Modification requested.');
+
+        return $this->redirectToRoute('app_review_index');
+    }
 }
