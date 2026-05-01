@@ -2,9 +2,8 @@
 
 namespace App\Entity;
 
+use App\Enum\ModificationAction;
 use App\Repository\ModificationHistoryRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,68 +15,41 @@ class ModificationHistory
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $ModificationDate = null;
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private \DateTimeImmutable $date;
 
-    /**
-     * @var Collection<int, User>
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'ModificationHisotry')]
-    private Collection $users;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
 
-    public function __construct()
+    #[ORM\ManyToOne(inversedBy: 'history')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?Product $product = null;
+
+    #[ORM\Column(enumType: ModificationAction::class)]
+    private ModificationAction $action;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $comment = null;
+
+    public function __construct(Product $product, User $user, ModificationAction $action, ?string $comment = null)
     {
-        $this->users = new ArrayCollection();
+        $this->product = $product;
+        $this->user    = $user;
+        $this->action  = $action;
+        $this->comment = $comment;
+        $this->date    = new \DateTimeImmutable();
     }
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    public function getId(): ?int { return $this->id; }
 
-    public function setId(int $id): static
-    {
-        $this->id = $id;
+    public function getDate(): \DateTimeImmutable { return $this->date; }
 
-        return $this;
-    }
+    public function getUser(): ?User { return $this->user; }
 
-    public function getModificationDate(): ?\DateTimeImmutable
-    {
-        return $this->ModificationDate;
-    }
+    public function getProduct(): ?Product { return $this->product; }
 
-    public function setModificationDate(\DateTimeImmutable $ModificationDate): static
-    {
-        $this->ModificationDate = $ModificationDate;
+    public function getAction(): ModificationAction { return $this->action; }
 
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-
-    public function addUser(User $user): static
-    {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->addModificationHisotry($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): static
-    {
-        if ($this->users->removeElement($user)) {
-            $user->removeModificationHisotry($this);
-        }
-
-        return $this;
-    }
+    public function getComment(): ?string { return $this->comment; }
 }

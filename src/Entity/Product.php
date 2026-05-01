@@ -54,8 +54,11 @@ class Product
     #[ORM\JoinColumn(nullable: false)]
     private ?User $ModifiedByUser = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    private ?ModificationHistory $ModificationHistory = null;
+    /**
+     * @var Collection<int, ModificationHistory>
+     */
+    #[ORM\OneToMany(targetEntity: ModificationHistory::class, mappedBy: 'product', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $history;
 
     #[ORM\Column(enumType: SubmissionStatus::class)]
     private SubmissionStatus $status = SubmissionStatus::Pending;
@@ -80,8 +83,9 @@ class Product
 
     public function __construct()
     {
-        $this->images = new ArrayCollection();
-        $this->tags = new ArrayCollection();
+        $this->images  = new ArrayCollection();
+        $this->tags    = new ArrayCollection();
+        $this->history = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -241,14 +245,17 @@ class Product
         return $this;
     }
 
-    public function getModificationHistory(): ?ModificationHistory
+    /** @return Collection<int, ModificationHistory> */
+    public function getHistory(): Collection
     {
-        return $this->ModificationHistory;
+        return $this->history;
     }
 
-    public function setModificationHistory(?ModificationHistory $ModificationHistory): static
+    public function addHistory(ModificationHistory $entry): static
     {
-        $this->ModificationHistory = $ModificationHistory;
+        if (!$this->history->contains($entry)) {
+            $this->history->add($entry);
+        }
 
         return $this;
     }
