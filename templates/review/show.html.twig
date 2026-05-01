@@ -1,64 +1,85 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Review — {{ product.productName }}{% endblock %}
 
 {% block body %}
-<div style="padding:16px;">
-    <h1>{{ product.productName }}</h1>
-    <p>Status: <strong>{{ product.status.label() }}</strong></p>
+<div class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-1">{{ product.productType.type }}</p>
+    <h1 class="text-4xl font-bold tracking-tight text-apple-dark mb-1">{{ product.productName }}</h1>
+    <p class="text-sm text-apple-gray mb-8">
+        Status: <span class="font-medium text-apple-dark">{{ product.status.label() }}</span>
+    </p>
 
-    <table border="1" cellpadding="6" cellspacing="0">
-        <tr><th>Technical Name</th><td>{{ product.technicalName }}</td></tr>
-        <tr><th>Category</th><td>{{ product.productType.type }}</td></tr>
-        <tr><th>Release Date</th><td>{{ product.releaseDate ? product.releaseDate|date('Y-m-d') : '—' }}</td></tr>
-        <tr><th>Year Discontinued</th><td>{{ product.discontinuedYear ? product.discontinuedYear|date('Y') : '—' }}</td></tr>
-        <tr><th>Launch OS</th><td>{{ product.launchOS ?? '—' }}</td></tr>
-        <tr><th>Last Supported OS</th><td>{{ product.lastSupportedOS ?? '—' }}</td></tr>
-        <tr><th>Original Price</th><td>${{ product.originalPrice }}</td></tr>
-        <tr><th>Description</th><td>{{ product.description ?? '—' }}</td></tr>
-        <tr><th>Sources</th><td>{{ product.sources ?? '—' }}</td></tr>
-        <tr>
-            <th>Tags</th>
-            <td>{{ product.tags is not empty ? product.tags|map(t => t.name)|join(', ') : '—' }}</td>
-        </tr>
+    <table class="w-full text-sm border-collapse mb-8">
+        {% set rows = [
+            ['Technical name',    product.technicalName],
+            ['Category',          product.productType.type],
+            ['Release date',      product.releaseDate ? product.releaseDate|date('Y-m-d') : '—'],
+            ['Year discontinued', product.discontinuedYear ? product.discontinuedYear|date('Y') : '—'],
+            ['Launch OS',         product.launchOS ?? '—'],
+            ['Last supported OS', product.lastSupportedOS ?? '—'],
+            ['Original price',    product.originalPrice ? '$' ~ product.originalPrice : '—'],
+            ['Description',       product.description ?? '—'],
+            ['Sources',           product.sources ?? '—'],
+            ['Tags',              product.tags is not empty ? product.tags|map(t => t.name)|join(', ') : '—'],
+        ] %}
+        {% for row in rows %}
+            <tr class="border-b border-apple-border last:border-0">
+                <th class="text-left py-3 pr-4 text-apple-gray font-medium w-44 align-top">{{ row[0] }}</th>
+                <td class="py-3 text-apple-dark">{{ row[1] }}</td>
+            </tr>
+        {% endfor %}
     </table>
 
     {% if product.rejectionComment %}
-        <p><strong>Previous rejection comment:</strong> {{ product.rejectionComment }}</p>
+        <div class="mb-8 px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+            <span class="font-medium">Previous comment:</span> {{ product.rejectionComment }}
+        </div>
     {% endif %}
 
-    <hr>
+    {# ── Actions ── #}
+    <div class="pt-6 border-t border-apple-border space-y-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray">Actions</h2>
 
-    <h2>Actions</h2>
+        <div class="flex gap-3 flex-wrap">
+            <form method="post" action="{{ path('app_review_approve', {id: product.id}) }}">
+                <button type="submit"
+                        class="px-5 py-2.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
+                    {% if is_granted('ROLE_BARISTA') %}Approve (final){% else %}Approve (send to barista){% endif %}
+                </button>
+            </form>
+        </div>
 
-    <form method="post" action="{{ path('app_review_approve', {id: product.id}) }}" style="display:inline;">
-        {% if is_granted('ROLE_BARISTA') %}
-            <button type="submit">Approve (final)</button>
-        {% else %}
-            <button type="submit">Approve (send to barista)</button>
+        <div>
+            <p class="text-xs text-apple-gray mb-2 font-medium">Reject</p>
+            <form method="post" action="{{ path('app_review_reject', {id: product.id}) }}" class="flex flex-col gap-2 max-w-md">
+                <textarea name="rejection_comment" rows="3"
+                          placeholder="Rejection reason (required)"
+                          required
+                          class="border border-apple-border rounded-xl px-3 py-2 text-sm text-apple-dark focus:outline-none focus:border-apple-blue transition-colors resize-none"></textarea>
+                <button type="submit"
+                        class="self-start px-5 py-2.5 border border-red-400 text-red-500 text-sm font-medium rounded-full hover:bg-red-500 hover:text-white transition-all cursor-pointer">
+                    {% if is_granted('ROLE_BARISTA') %}Reject (final){% else %}Reject (send back){% endif %}
+                </button>
+            </form>
+        </div>
+
+        {% if not is_granted('ROLE_BARISTA') %}
+            <div>
+                <p class="text-xs text-apple-gray mb-2 font-medium">Request modification</p>
+                <form method="post" action="{{ path('app_review_request_modification', {id: product.id}) }}" class="flex flex-col gap-2 max-w-md">
+                    <textarea name="modification_comment" rows="3"
+                              placeholder="Describe the changes needed (required)"
+                              required
+                              class="border border-apple-border rounded-xl px-3 py-2 text-sm text-apple-dark focus:outline-none focus:border-apple-blue transition-colors resize-none"></textarea>
+                    <button type="submit"
+                            class="self-start px-5 py-2.5 border border-apple-border text-apple-gray text-sm font-medium rounded-full hover:border-apple-dark hover:text-apple-dark transition-all cursor-pointer">
+                        Request modification
+                    </button>
+                </form>
+            </div>
         {% endif %}
-    </form>
+    </div>
 
-    &nbsp;
-
-    <form method="post" action="{{ path('app_review_reject', {id: product.id}) }}" style="display:inline-block; vertical-align:top;">
-        <textarea name="rejection_comment" rows="2" cols="40" placeholder="Rejection reason (required)" required></textarea><br>
-        {% if is_granted('ROLE_BARISTA') %}
-            <button type="submit">Reject (final)</button>
-        {% else %}
-            <button type="submit">Reject (send back for review)</button>
-        {% endif %}
-    </form>
-
-    {% if not is_granted('ROLE_BARISTA') %}
-        <hr>
-        <h2>Request modification</h2>
-        <form method="post" action="{{ path('app_review_request_modification', {id: product.id}) }}">
-            <textarea name="modification_comment" rows="3" cols="50" placeholder="Describe the changes needed (required)" required></textarea><br>
-            <button type="submit">Request modification</button>
-        </form>
-    {% endif %}
-
-    <p><a href="{{ path('app_review_index') }}">← Back to queue</a></p>
+    <a href="{{ path('app_review_index') }}" class="inline-block mt-8 text-sm text-apple-blue hover:underline">← Back to queue</a>
 </div>
 {% endblock %}

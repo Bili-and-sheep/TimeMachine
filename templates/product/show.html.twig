@@ -1,48 +1,59 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}{{ product.productName }} — Apple Time Machine{% endblock %}
 
 {% block body %}
-<div class="content-page">
-    <p style="font-size:12px; color:#6e6e73; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;">
-        {{ product.productType.type }}
-    </p>
-    <h1>{{ product.productName }}</h1>
-    <p style="color:#6e6e73; font-size:15px; margin-top:4px;">{{ product.technicalName }}</p>
+<div class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-2">{{ product.productType.type }}</p>
+    <h1 class="text-4xl font-bold tracking-tight text-apple-dark mb-1">{{ product.productName }}</h1>
+    <p class="text-apple-gray text-base mb-8">{{ product.technicalName }}</p>
 
     {% if product.images is not empty %}
         <img src="{{ product.images.first.path }}" alt="{{ product.productName }}"
-             style="max-width:360px; width:100%; display:block; margin:32px auto; border-radius:12px;">
+             class="max-w-sm w-full mx-auto block rounded-2xl mb-10">
     {% endif %}
 
-    <table>
-        <tr><th>Release date</th><td>{{ product.releaseDate ? product.releaseDate|date('Y-m-d') : '—' }}</td></tr>
-        <tr><th>Year discontinued</th><td>{{ product.discontinuedYear ? product.discontinuedYear|date('Y') : '—' }}</td></tr>
-        <tr><th>Launch OS</th><td>{{ product.launchOS ?? '—' }}</td></tr>
-        <tr><th>Last supported OS</th><td>{{ product.lastSupportedOS ?? '—' }}</td></tr>
-        <tr><th>Original price</th><td>{% if product.originalPrice %}${{ product.originalPrice }}{% else %}—{% endif %}</td></tr>
-        <tr>
-            <th>Inflation-adjusted</th>
-            <td>{{ product.inflationAdjustedPrice ? '$' ~ product.inflationAdjustedPrice : '—' }}</td>
-        </tr>
-        <tr><th>Description</th><td>{{ product.description ?? '—' }}</td></tr>
-        <tr><th>Sources</th><td>{{ product.sources ?? '—' }}</td></tr>
-        <tr>
-            <th>Tags</th>
-            <td>{{ product.tags is not empty ? product.tags|map(t => t.name)|join(', ') : '—' }}</td>
-        </tr>
+    <table class="w-full text-sm border-collapse">
+        {% set rows = [
+            ['Release date',        product.releaseDate ? product.releaseDate|date('Y-m-d') : '—'],
+            ['Year discontinued',   product.discontinuedYear ? product.discontinuedYear|date('Y') : '—'],
+            ['Launch OS',           product.launchOS ?? '—'],
+            ['Last supported OS',   product.lastSupportedOS ?? '—'],
+            ['Original price',      product.originalPrice ? '$' ~ product.originalPrice : '—'],
+            ['Inflation-adjusted',  product.inflationAdjustedPrice ? '$' ~ product.inflationAdjustedPrice : '—'],
+            ['Description',         product.description ?? '—'],
+            ['Sources',             product.sources ?? '—'],
+            ['Tags',                product.tags is not empty ? product.tags|map(t => t.name)|join(', ') : '—'],
+        ] %}
+        {% for row in rows %}
+            <tr class="border-b border-apple-border last:border-0">
+                <th class="text-left py-3 pr-4 text-apple-gray font-medium w-44 align-top">{{ row[0] }}</th>
+                <td class="py-3 text-apple-dark">{{ row[1] }}</td>
+            </tr>
+        {% endfor %}
     </table>
 
-    <a class="back-link" href="{{ app.request.headers.get('referer') ?: path('app_home') }}">← Back</a>
+    <div class="mt-8 flex items-center gap-3 flex-wrap">
+        <a href="{{ app.request.headers.get('referer') ?: path('app_home') }}"
+           class="text-apple-blue text-sm hover:underline">← Back</a>
+    </div>
 
     {% if is_granted('ROLE_BARISTA') %}
-        <div class="action-bar">
-            <a class="btn btn-secondary" href="{{ path('app_product_edit', {id: product.id}) }}">Edit</a>
-            <a class="btn btn-secondary" href="{{ path('app_product_history', {id: product.id}) }}">History</a>
+        <div class="mt-8 pt-6 border-t border-apple-border flex items-center gap-3 flex-wrap">
+            <a href="{{ path('app_product_edit', {id: product.id}) }}"
+               class="px-4 py-2 text-sm border border-apple-blue text-apple-blue rounded-full hover:bg-apple-blue hover:text-white transition-all">
+                Edit
+            </a>
+            <a href="{{ path('app_product_history', {id: product.id}) }}"
+               class="px-4 py-2 text-sm border border-apple-border text-apple-gray rounded-full hover:border-apple-dark hover:text-apple-dark transition-all">
+                History
+            </a>
             <form method="post" action="{{ path('app_product_delete', {id: product.id}) }}"
                   onsubmit="return confirm('Delete « {{ product.productName }} »? This cannot be undone.');">
                 <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ product.id) }}">
-                <button class="btn btn-danger" type="submit">Delete</button>
+                <button type="submit"
+                        class="px-4 py-2 text-sm border border-red-400 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all cursor-pointer">
+                    Delete
+                </button>
             </form>
         </div>
     {% endif %}

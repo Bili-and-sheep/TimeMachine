@@ -1,28 +1,27 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Edit — {{ product.productName }}{% endblock %}
 
 {% block body %}
-<div style="padding:16px;">
-    <h1>Edit product</h1>
-    <p><em>{{ product.productName }}</em> — status: <strong>{{ product.status.label() }}</strong></p>
+<div class="max-w-2xl mx-auto px-6 py-12">
+    <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-1">{{ product.productType.type }}</p>
+    <h1 class="text-4xl font-bold tracking-tight text-apple-dark mb-1">{{ product.productName }}</h1>
+    <p class="text-sm text-apple-gray mb-8">Status: <span class="font-medium">{{ product.status.label() }}</span></p>
 
-    {{ form_start(form) }}
-        {{ form_row(form.ProductName) }}
-        {{ form_row(form.TechnicalName) }}
-        {{ form_row(form.ProductType) }}
-        {{ form_row(form.ReleaseDate) }}
-        {{ form_row(form.DiscontinuedYear) }}
-        {{ form_row(form.LaunchOS) }}
-        {{ form_row(form.LastSupportedOS) }}
-        {{ form_row(form.OriginalPrice) }}
-        {{ form_row(form.Description) }}
-        {{ form_row(form.Sources) }}
-        {{ form_row(form.tags) }}
+    {{ form_start(form, {attr: {class: 'space-y-5'}}) }}
+        {% for field in form %}
+            <div>
+                {{ form_label(field, null, {label_attr: {class: 'block text-xs text-apple-gray mb-1'}}) }}
+                {{ form_widget(field, {attr: {class: 'w-full border border-apple-border rounded-lg px-3 py-2 text-sm text-apple-dark focus:outline-none focus:border-apple-blue transition-colors bg-white'}}) }}
+                {{ form_errors(field) }}
+            </div>
+        {% endfor %}
 
-        <button type="submit">Save changes</button>
+        <button type="submit"
+                class="mt-2 px-5 py-2.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
+            Save changes
+        </button>
     {{ form_end(form) }}
 
-    <p><a href="{{ path('app_product_show', {id: product.id}) }}">← Cancel</a></p>
+    <a href="{{ path('app_product_show', {id: product.id}) }}" class="inline-block mt-6 text-sm text-apple-blue hover:underline">← Cancel</a>
 </div>
 {% endblock %}

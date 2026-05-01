@@ -1,37 +1,39 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}History — {{ product.productName }}{% endblock %}
 
 {% block body %}
-<div style="padding:16px;">
-    <h1>Modification history</h1>
-    <h2>{{ product.productName }}</h2>
+<div class="max-w-3xl mx-auto px-6 py-12">
+    <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-1">Modification history</p>
+    <h1 class="text-4xl font-bold tracking-tight text-apple-dark mb-8">{{ product.productName }}</h1>
 
     {% if entries is empty %}
-        <p>No history recorded yet.</p>
+        <p class="text-apple-gray text-sm">No history recorded yet.</p>
     {% else %}
-        <table border="1" cellpadding="6" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>User</th>
-                    <th>Action</th>
-                    <th>Comment</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for entry in entries %}
+        <div class="border border-apple-border rounded-xl overflow-hidden">
+            <table class="w-full text-sm">
+                <thead class="bg-apple-light text-apple-gray text-xs uppercase tracking-widest">
                     <tr>
-                        <td>{{ entry.date|date('Y-m-d H:i') }}</td>
-                        <td>{{ entry.user.userIdentifier|slice(0,8) }}…</td>
-                        <td>{{ entry.action.label() }}</td>
-                        <td>{{ entry.comment ?? '—' }}</td>
+                        <th class="text-left px-5 py-3">Date</th>
+                        <th class="text-left px-5 py-3">User</th>
+                        <th class="text-left px-5 py-3">Action</th>
+                        <th class="text-left px-5 py-3">Comment</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-apple-border">
+                    {% for entry in entries %}
+                        <tr class="hover:bg-apple-light transition-colors">
+                            <td class="px-5 py-3 text-apple-gray whitespace-nowrap">{{ entry.date|date('Y-m-d H:i') }}</td>
+                            <td class="px-5 py-3 font-mono text-xs text-apple-gray">{{ entry.user.userIdentifier|slice(0,8) }}…</td>
+                            <td class="px-5 py-3 text-apple-dark font-medium">{{ entry.action.label() }}</td>
+                            <td class="px-5 py-3 text-apple-gray">{{ entry.comment ?? '—' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endif %}
 
-    <p><a href="{{ path('app_product_show', {id: product.id}) }}">← Back to product</a></p>
+    <a href="{{ path('app_product_show', {id: product.id}) }}"
+       class="inline-block mt-8 text-sm text-apple-blue hover:underline">← Back to product</a>
 </div>
 {% endblock %}
