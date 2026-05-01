@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\ModificationHistory;
 use App\Entity\Product;
+use App\Entity\User;
+use App\Enum\ModificationAction;
 use App\Form\ProductFormType;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,8 +27,14 @@ final class ProductController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $product->setModifiedByUser($this->getUser());
+            /** @var User $user */
+            $user = $this->getUser();
+            $product->setModifiedByUser($user);
             $em->persist($product);
+
+            $em->persist(new ModificationHistory($product, $user, ModificationAction::Created));
+
+
             $em->flush();
 
             $this->addFlash('success', 'Product submitted and pending review.');

@@ -39,6 +39,8 @@
     <p><a href="{{ path('app_home') }}">← Back to home</a></p>
 
     {% if is_granted('ROLE_BARISTA') %}
+        <p><a href="{{ path('app_product_history', {id: product.id}) }}">View modification history</a></p>
+
         <form method="post" action="{{ path('app_product_delete', {id: product.id}) }}"
               onsubmit="return confirm('Delete « {{ product.productName }} »? This cannot be undone.');">
             <input type="hidden" name="_token" value="{{ csrf_token('delete_product_' ~ product.id) }}">
