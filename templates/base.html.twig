@@ -27,6 +27,24 @@
            class="text-white/85 hover:text-white transition-opacity text-xl leading-none"
            title="Apple Time Machine">&#63743;</a>
 
+        <div class="max-w-[1024px] mx-auto px-4 flex items-center justify-center">
+            {% set navItems = {
+                'iphone':      'iPhone',
+                'mac':         'Mac',
+                'ipad':        'iPad',
+                'watch':       'Watch',
+                'tv':          'TV',
+                'accessories': 'Accessories',
+                'other':       'Other'
+            } %}
+            {% for slug, label in navItems %}
+                <a href="{{ path('app_browse', {category: slug}) }}"
+                   class="text-white/75 hover:text-white text-xs px-3.5 py-2.5 transition-colors whitespace-nowrap">
+                    {{ label }}
+                </a>
+            {% endfor %}
+        </div>
+
         <div class="flex items-center gap-5">
             {% if is_granted('ROLE_USER') %}
                 <a href="{{ path('app_product_new') }}"
@@ -57,26 +75,6 @@
     </div>
 </header>
 
-{# ── Category store nav ── #}
-<nav class="bg-[rgba(29,29,31,0.72)] backdrop-blur-xl border-b border-white/10">
-    <div class="max-w-[1024px] mx-auto px-4 flex items-center justify-center">
-        {% set navItems = {
-            'iphone':      'iPhone',
-            'mac':         'Mac',
-            'ipad':        'iPad',
-            'watch':       'Watch',
-            'tv':          'TV',
-            'accessories': 'Accessories',
-            'other':       'Other'
-        } %}
-        {% for slug, label in navItems %}
-            <a href="{{ path('app_browse', {category: slug}) }}"
-               class="text-white/75 hover:text-white text-xs px-3.5 py-2.5 transition-colors whitespace-nowrap">
-                {{ label }}
-            </a>
-        {% endfor %}
-    </div>
-</nav>
 
 {# ── Flash messages ── #}
 {% for type, messages in app.flashes %}

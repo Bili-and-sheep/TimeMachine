@@ -22,122 +22,196 @@
 {% block body %}
 
 {# ══════════════════════════════════════════════════
-   SECTION 1 — HERO
+   SECTION 1 — HERO (Apple "buy page" layout)
+   Title block on top, then 2-column split:
+   image on the left, configurator cards on the right.
    ══════════════════════════════════════════════════ #}
-<section class="bg-[#f5f5f7] pb-0 overflow-hidden">
-    <div class="max-w-[980px] mx-auto px-6 pt-16 text-center">
+<section class="bg-[#f5f5f7]">
+    <div class="max-w-[1024px] mx-auto px-6 pt-12 pb-6">
 
-        {# Category label #}
-        <p class="text-sm font-semibold text-apple-gray tracking-tight mb-1">
-            {{ product.productType.type }}
-        </p>
-
-        {# Product name #}
-        <h1 class="text-[56px] md:text-[80px] font-bold tracking-tight leading-[1.04] text-apple-dark mb-3">
-            {{ product.productName }}
+        {# ── Title row ── #}
+        <h1 class="text-[40px] md:text-[56px] font-bold tracking-tight leading-[1.05] text-apple-dark">
+            Découvrir le {{ product.productName }}
         </h1>
 
-        {# Technical name as tagline #}
-        {% if product.technicalName and product.technicalName != product.productName %}
-            <p class="text-xl text-apple-gray font-light mb-5">{{ product.technicalName }}</p>
-        {% endif %}
-
-        {# Discontinued badge + year range #}
-        <div class="flex items-center justify-center gap-3 mb-8 flex-wrap">
-            <span class="inline-flex items-center gap-1.5 bg-apple-dark text-white text-xs font-semibold px-3 py-1 rounded-full">
-                <span class="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"></span>
-                Discontinued
-                {% if product.discontinuedYear %} {{ product.discontinuedYear|date('Y') }}{% endif %}
-            </span>
-            {% if product.releaseDate %}
-                <span class="text-xs text-apple-gray">
-                    Released {{ product.releaseDate|date('Y') }}
-                    {% if product.discontinuedYear %}
-                        &nbsp;·&nbsp; {{ product.discontinuedYear|date('Y') - product.releaseDate|date('Y') }} years on sale
-                    {% endif %}
-                </span>
-            {% endif %}
-        </div>
-
-        {# Price quick-look #}
         {% if product.originalPrice %}
-            <div class="flex items-baseline justify-center gap-3 mb-10">
-                <span class="text-2xl font-semibold text-apple-dark">${{ product.originalPrice }}</span>
-                <span class="text-apple-gray text-sm">at launch</span>
+            <p class="mt-3 text-base md:text-lg text-apple-dark">
+                À partir de <span class="font-medium">${{ product.originalPrice }}</span>
                 {% if product.inflationAdjustedPrice %}
-                    <span class="text-apple-gray text-sm">·</span>
-                    <span class="text-apple-dark text-sm font-medium">${{ product.inflationAdjustedPrice }} today</span>
+                    <span class="text-apple-gray"> ou ${{ product.inflationAdjustedPrice }} ajusté à l'inflation<sup>°°</sup></span>
                 {% endif %}
-            </div>
+            </p>
         {% endif %}
+
+        {# ── Tagline / technical name + meta badges ── #}
+        <div class="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
+            {% if product.technicalName and product.technicalName != product.productName %}
+                <p class="inline-flex items-center gap-2 text-sm font-medium text-apple-dark">
+                    <span class="inline-block w-4 h-4 rounded-full bg-gradient-to-tr from-pink-400 via-amber-400 to-sky-400"></span>
+                    {{ product.technicalName }}
+                    <span class="text-apple-blue text-xs hover:underline cursor-pointer">En savoir plus ⊕</span>
+                </p>
+            {% endif %}
+
+            {# Energy-label-style "A" badge → uses category #}
+            <span class="inline-flex items-center gap-1.5 bg-green-600 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-sm">
+                A
+                <span class="font-normal text-[10px] opacity-80">{{ product.productType.type }}</span>
+            </span>
+        </div>
     </div>
 
-    {# Hero image — full width, sits at the bottom of the section #}
-    {% if product.images is not empty %}
-        <div class="flex justify-center">
-            <img src="{{ product.images.first.path }}"
-                 alt="{{ product.productName }}"
-                 class="max-w-[600px] w-full mx-auto block object-contain max-h-[420px]">
-        </div>
-    {% else %}
-        <div class="h-12"></div>
-    {% endif %}
-</section>
+    {# ── Main 2-column split ── #}
+    <div class="max-w-[1024px] mx-auto px-6 pb-16">
+        <div class="bg-white rounded-3xl border border-apple-border overflow-hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-0">
 
-{# ══════════════════════════════════════════════════
-   SECTION 2 — OPTIONS (colors, storage, etc.)
-   ══════════════════════════════════════════════════ #}
-{% if product.options %}
-<section class="border-t border-apple-border bg-white py-14">
-    <div class="max-w-[680px] mx-auto px-6">
-        <h2 class="text-3xl font-bold tracking-tight text-apple-dark text-center mb-10">
-            Available configurations
-        </h2>
-
-        {% for optionKey, optionValues in product.options %}
-            {% set isColor = 'color' in optionKey|lower %}
-            <div class="mb-10">
-                <p class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-4">
-                    {{ optionKey|capitalize }}
-                    {% if isColor and optionValues is iterable %}
-                        <span class="normal-case font-normal ml-2 text-apple-dark">
-                            — {{ optionValues|first }}
-                        </span>
+                {# ── LEFT : hero image ── #}
+                <div class="relative bg-[#f5f5f7] flex items-center justify-center px-6 py-12 lg:py-16 min-h-[420px]">
+                    {% if product.images is not empty %}
+                        <img src="{{ product.images.first.path }}"
+                             alt="{{ product.productName }}"
+                             class="max-w-full max-h-[440px] object-contain">
+                    {% else %}
+                        <div class="w-48 h-48 bg-apple-border/40 rounded-3xl flex items-center justify-center text-apple-gray text-sm">
+                            No image
+                        </div>
                     {% endif %}
-                </p>
 
-                {% if isColor and optionValues is iterable %}
-                    {# Color swatches #}
-                    <div class="flex flex-wrap gap-6">
-                        {% for color in optionValues %}
-                            {% set colorKey = color|lower %}
-                            {% set hex = colorMap[colorKey] ?? '#d2d2d7' %}
-                            <div class="flex flex-col items-center gap-2 group cursor-default">
-                                <div class="w-8 h-8 rounded-full border-2 border-white ring-2 ring-apple-border group-hover:ring-apple-dark transition-all"
-                                     style="background-color: {{ hex }}"></div>
-                                <span class="text-[11px] text-apple-gray group-hover:text-apple-dark transition-colors whitespace-nowrap">
-                                    {{ color }}
-                                </span>
+                    {# Discontinued + release pill, top-left of image #}
+                    <div class="absolute top-5 left-5 flex items-center gap-2">
+                        <span class="inline-flex items-center gap-1.5 bg-apple-dark text-white text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                            <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>
+                            Discontinued
+                            {% if product.discontinuedYear %} {{ product.discontinuedYear|date('Y') }}{% endif %}
+                        </span>
+                        {% if product.releaseDate %}
+                            <span class="text-[11px] text-apple-gray bg-white/70 backdrop-blur px-2 py-1 rounded-full">
+                                Released {{ product.releaseDate|date('Y') }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {# Right-edge chevron, like Apple's gallery navigator #}
+                    {% if product.images|length > 1 %}
+                        <button type="button"
+                                class="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white shadow-md items-center justify-center text-apple-dark hover:scale-105 transition-transform"
+                                aria-label="Next image">›</button>
+                    {% endif %}
+                </div>
+
+                {# ── RIGHT : configurator cards ── #}
+                <div class="px-6 lg:px-8 py-8 lg:py-12 flex flex-col gap-6">
+
+                    {% if product.options %}
+                        {% for optionKey, optionValues in product.options %}
+                            {% set isColor = 'color' in optionKey|lower %}
+
+                            <div>
+                                <h2 class="text-base md:text-lg font-semibold tracking-tight text-apple-dark mb-3">
+                                    <span class="text-apple-dark">{{ optionKey|capitalize }}.</span>
+                                    <span class="text-apple-gray font-normal">
+                                        {% if isColor %}Quelle couleur préférez-vous ?
+                                        {% elseif 'storage' in optionKey|lower %}Quelle capacité vous faut-il ?
+                                        {% elseif 'size' in optionKey|lower %}Quelle taille vous faut-il ?
+                                        {% else %}Quelle option vous faut-il ?{% endif %}
+                                    </span>
+                                </h2>
+
+                                {# Color → swatch cards #}
+                                {% if isColor and optionValues is iterable %}
+                                    <div class="flex flex-wrap gap-3">
+                                        {% for color in optionValues %}
+                                            {% set colorKey = color|lower %}
+                                            {% set hex = colorMap[colorKey] ?? '#d2d2d7' %}
+                                            <button type="button"
+                                                    class="group flex items-center gap-2 border border-apple-border hover:border-apple-dark rounded-xl px-3 py-2 transition-colors">
+                                                <span class="w-5 h-5 rounded-full ring-1 ring-apple-border"
+                                                      style="background-color: {{ hex }}"></span>
+                                                <span class="text-xs text-apple-dark">{{ color }}</span>
+                                            </button>
+                                        {% endfor %}
+                                    </div>
+
+                                {# Other options → "model picker" cards (left label, right price) #}
+                                {% elseif optionValues is iterable %}
+                                    <div class="flex flex-col gap-2">
+                                        {% for value in optionValues %}
+                                            <button type="button"
+                                                    class="text-left border border-apple-border hover:border-apple-dark rounded-2xl px-4 py-3 flex items-start justify-between gap-4 transition-colors">
+                                                <div>
+                                                    <p class="text-sm font-semibold text-apple-dark leading-tight">
+                                                        {{ product.productName }}
+                                                    </p>
+                                                    <p class="text-[11px] text-apple-gray mt-0.5">{{ value }}</p>
+                                                </div>
+                                                {% if product.originalPrice %}
+                                                    <div class="text-right shrink-0">
+                                                        <p class="text-[11px] text-apple-gray leading-tight">À partir de</p>
+                                                        <p class="text-sm font-semibold text-apple-dark">${{ product.originalPrice }}</p>
+                                                        {% if product.inflationAdjustedPrice %}
+                                                            <p class="text-[10px] text-apple-gray">
+                                                                ou ${{ product.inflationAdjustedPrice }} aujourd'hui<sup>°°</sup>
+                                                            </p>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </button>
+                                        {% endfor %}
+                                    </div>
+
+                                {% else %}
+                                    <p class="text-sm text-apple-dark">{{ optionValues }}</p>
+                                {% endif %}
                             </div>
                         {% endfor %}
+                    {% else %}
+                        {# No options? Show one "model card" + tech intro #}
+                        <div>
+                            <h2 class="text-base md:text-lg font-semibold tracking-tight text-apple-dark mb-3">
+                                <span>Modèle.</span>
+                                <span class="text-apple-gray font-normal">Quel modèle vous faut-il ?</span>
+                            </h2>
+                            <div class="border border-apple-dark rounded-2xl px-4 py-3 flex items-start justify-between gap-4">
+                                <div>
+                                    <p class="text-sm font-semibold text-apple-dark leading-tight">
+                                        {{ product.productName }}
+                                    </p>
+                                    {% if product.technicalName %}
+                                        <p class="text-[11px] text-apple-gray mt-0.5">{{ product.technicalName }}</p>
+                                    {% endif %}
+                                </div>
+                                {% if product.originalPrice %}
+                                    <div class="text-right shrink-0">
+                                        <p class="text-[11px] text-apple-gray leading-tight">À partir de</p>
+                                        <p class="text-sm font-semibold text-apple-dark">${{ product.originalPrice }}</p>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {# "Besoin d'aide" expandable row #}
+                    <div class="mt-auto pt-6 border-t border-apple-border">
+                        <button type="button"
+                                class="w-full flex items-start justify-between gap-3 text-left group">
+                            <div>
+                                <p class="text-sm font-semibold text-apple-dark group-hover:underline">
+                                    Besoin d'aide pour explorer cet appareil&nbsp;?
+                                </p>
+                                <p class="text-xs text-apple-gray mt-0.5">
+                                    Découvrez les caractéristiques techniques et l'historique du produit.
+                                </p>
+                            </div>
+                            <span class="text-apple-blue text-lg leading-none mt-0.5">⊕</span>
+                        </button>
                     </div>
-                {% elseif optionValues is iterable %}
-                    {# Pill options (storage, size, etc.) #}
-                    <div class="flex flex-wrap gap-2">
-                        {% for value in optionValues %}
-                            <span class="px-4 py-2 border border-apple-border rounded-xl text-sm text-apple-dark hover:border-apple-dark transition-colors cursor-default font-medium">
-                                {{ value }}
-                            </span>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-sm text-apple-dark">{{ optionValues }}</p>
-                {% endif %}
+
+                </div>
             </div>
-        {% endfor %}
+        </div>
     </div>
 </section>
-{% endif %}
 
 {# ══════════════════════════════════════════════════
    SECTION 3 — OS SUPPORT TIMELINE
@@ -190,8 +264,8 @@
                 ['Category',          product.productType.type],
                 ['Release date',      product.releaseDate ? product.releaseDate|date('F j, Y') : null],
                 ['Year discontinued', product.discontinuedYear ? product.discontinuedYear|date('Y') : null],
-                ['Launch OS',         product.launchOS ? product.launchOS|string : null],
-                ['Last supported OS', product.lastSupportedOS ? product.lastSupportedOS|string : null],
+                ['Launch OS',         product.launchOS ?? null],
+                ['Last supported OS', product.lastSupportedOS ?? null],
                 ['Original price',    product.originalPrice ? '$' ~ product.originalPrice : null],
                 ['Inflation-adjusted','$' ~ (product.inflationAdjustedPrice ?? '—') ~ ' (today)'],
             ] %}

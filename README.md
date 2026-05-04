@@ -102,4 +102,5 @@ This project is actively in development. Contributions, feedback, and product re
 ---
 
 *Made with nostalgia, obsession, and a deep appreciation for hardware that had a soul.*
+
 *Thanks Claude.IA for this nice readme °>° orignal scrap [here](orignialREAMDE.md)*
