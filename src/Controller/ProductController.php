@@ -6,6 +6,7 @@ use App\Entity\ModificationHistory;
 use App\Entity\Product;
 use App\Entity\User;
 use App\Enum\ModificationAction;
+use App\Enum\SubmissionStatus;
 use App\Form\ProductFormType;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -52,7 +53,7 @@ final class ProductController extends AbstractController
     {
         $product = $productRepository->find($id);
 
-        if (!$product) {
+        if (!$product || $product->getStatus() !== SubmissionStatus::Approved) {
             throw $this->createNotFoundException('Product not found.');
         }
 

@@ -32,9 +32,20 @@ final class ReviewController extends AbstractController
             ['id' => 'DESC']
         );
 
+        $rejectedReview = $productRepository->findBy(
+            ['status' => SubmissionStatus::RejectedByReview],
+            ['id' => 'DESC']
+        );
+        $rejected = $productRepository->findBy(
+            ['status' => SubmissionStatus::Rejected],
+            ['id' => 'DESC']
+        );
+
         return $this->render('review/index.html.twig', [
             'pending'          => $pending,
             'approvedByReview' => $approvedByReview,
+            'rejectedReview'  => $rejectedReview,
+            'rejected'         => $rejected,
         ]);
     }
 
