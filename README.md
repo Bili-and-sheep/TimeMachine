@@ -2,6 +2,8 @@
 
 > *Rediscovering the products that defined an era — one discontinuation at a time.*
 
+**[https://timemachine.eliottandre.com](https://timemachine.eliottandre.com)**
+
 ---
 
 ## What is this?
@@ -92,6 +94,12 @@ I wanted:
 | **Admin Panel** | Review submissions, manage the archive |
 | **About** | The story, the goals, the team |
 | **Contact** | Reach out for support or questions |
+
+---
+
+## 🌐 Live
+
+[https://timemachine.eliottandre.com](https://timemachine.eliottandre.com)
 
 ---
 
