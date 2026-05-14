@@ -20,26 +20,26 @@ class ProductFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('ProductName', TextType::class, ['label' => 'Product Name'])
-            ->add('TechnicalName', TextType::class, ['label' => 'Technical Name'])
-            ->add('ProductType', EntityType::class, [
+            ->add('productName', TextType::class, ['label' => 'Product Name'])
+            ->add('technicalName', TextType::class, ['label' => 'Technical Name'])
+            ->add('productType', EntityType::class, [
                 'class'        => ProductType::class,
                 'choice_label' => 'type',
                 'label'        => 'Category',
             ])
-            ->add('ReleaseDate', DateType::class, [
-                'label'  => 'Release Date',
-                'widget' => 'single_text',
-                'input'  => 'datetime_immutable',
+            ->add('releaseDate', DateType::class, [
+                'label'    => 'Release Date',
+                'widget'   => 'single_text',
+                'input'    => 'datetime_immutable',
                 'required' => false,
             ])
-            ->add('DiscontinuedYear', DateType::class, [
-                'label'  => 'Year Discontinued',
-                'widget' => 'single_text',
-                'input'  => 'datetime_immutable',
+            ->add('discontinuedYear', DateType::class, [
+                'label'    => 'Year Discontinued',
+                'widget'   => 'single_text',
+                'input'    => 'datetime_immutable',
                 'required' => false,
             ])
-            ->add('LaunchOS', EntityType::class, [
+            ->add('launchOS', EntityType::class, [
                 'class'        => OperatingSystem::class,
                 'choice_label' => fn(OperatingSystem $os) => $os->getFamily()->value . ' ' . $os->getVersion(),
                 'group_by'     => fn(OperatingSystem $os) => $os->getFamily()->value,
@@ -47,7 +47,7 @@ class ProductFormType extends AbstractType
                 'required'     => false,
                 'placeholder'  => '— select —',
             ])
-            ->add('LastSupportedOS', EntityType::class, [
+            ->add('lastSupportedOS', EntityType::class, [
                 'class'        => OperatingSystem::class,
                 'choice_label' => fn(OperatingSystem $os) => $os->getFamily()->value . ' ' . $os->getVersion(),
                 'group_by'     => fn(OperatingSystem $os) => $os->getFamily()->value,
@@ -55,12 +55,12 @@ class ProductFormType extends AbstractType
                 'required'     => false,
                 'placeholder'  => '— select —',
             ])
-            ->add('Description', TextareaType::class, [
+            ->add('description', TextareaType::class, [
                 'label'    => 'Description',
                 'required' => false,
             ])
-            ->add('OriginalPrice', IntegerType::class, ['label' => 'Original Price ($)'])
-            ->add('Sources', TextareaType::class, [
+            ->add('originalPrice', IntegerType::class, ['label' => 'Original Price ($)'])
+            ->add('sources', TextareaType::class, [
                 'label'    => 'Sources',
                 'required' => false,
             ])

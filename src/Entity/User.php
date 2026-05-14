@@ -29,7 +29,7 @@ class User implements UserInterface
     /**
      * @var Collection<int, Product>
      */
-    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'ModifiedByUser')]
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'modifiedByUser')]
     private Collection $products;
 
     public function __construct()

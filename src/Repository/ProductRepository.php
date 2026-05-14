@@ -31,9 +31,9 @@ class ProductRepository extends ServiceEntityRepository
     public function findApprovedByCategory(array $typeNames): array
     {
         return $this->createQueryBuilder('p')
-            ->join('p.ProductType', 't')
+            ->join('p.productType', 't')
             ->where('p.status = :status')
-            ->andWhere('t.Type IN (:types)')
+            ->andWhere('t.type IN (:types)')
             ->setParameter('status', \App\Enum\SubmissionStatus::Approved)
             ->setParameter('types', $typeNames)
             ->orderBy('p.id', 'DESC')

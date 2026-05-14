@@ -18,41 +18,41 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $ProductName = null;
+    private ?string $productName = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $TechnicalName = null;
+    private ?string $technicalName = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
-    private ?\DateTimeImmutable $ReleaseDate = null;
+    private ?\DateTimeImmutable $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $DiscontinuedYear = null;
+    private ?\DateTimeImmutable $discontinuedYear = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $Description = null;
+    private ?string $description = null;
 
     #[ORM\Column]
-    private ?int $OriginalPrice = null;
+    private ?int $originalPrice = null;
 
-#[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $Sources = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $sources = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    private ?ProductType $ProductType = null;
+    private ?ProductType $productType = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true)]
-    private ?OperatingSystem $LaunchOS = null;
+    private ?OperatingSystem $launchOS = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true)]
-    private ?OperatingSystem $LastSupportedOS = null;
+    private ?OperatingSystem $lastSupportedOS = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?User $ModifiedByUser = null;
+    private ?User $modifiedByUser = null;
 
     /**
      * @var Collection<int, ModificationHistory>
@@ -102,145 +102,145 @@ class Product
 
     public function getProductName(): ?string
     {
-        return $this->ProductName;
+        return $this->productName;
     }
 
-    public function setProductName(string $ProductName): static
+    public function setProductName(string $productName): static
     {
-        $this->ProductName = $ProductName;
+        $this->productName = $productName;
 
         return $this;
     }
 
     public function getTechnicalName(): ?string
     {
-        return $this->TechnicalName;
+        return $this->technicalName;
     }
 
-    public function setTechnicalName(string $TechnicalName): static
+    public function setTechnicalName(string $technicalName): static
     {
-        $this->TechnicalName = $TechnicalName;
+        $this->technicalName = $technicalName;
 
         return $this;
     }
 
     public function getReleaseDate(): ?\DateTimeImmutable
     {
-        return $this->ReleaseDate;
+        return $this->releaseDate;
     }
 
-    public function setReleaseDate(?\DateTimeImmutable $ReleaseDate): static
+    public function setReleaseDate(?\DateTimeImmutable $releaseDate): static
     {
-        $this->ReleaseDate = $ReleaseDate;
+        $this->releaseDate = $releaseDate;
 
         return $this;
     }
 
     public function getDiscontinuedYear(): ?\DateTimeImmutable
     {
-        return $this->DiscontinuedYear;
+        return $this->discontinuedYear;
     }
 
-    public function setDiscontinuedYear(?\DateTimeImmutable $DiscontinuedYear): static
+    public function setDiscontinuedYear(?\DateTimeImmutable $discontinuedYear): static
     {
-        $this->DiscontinuedYear = $DiscontinuedYear;
+        $this->discontinuedYear = $discontinuedYear;
 
         return $this;
     }
 
     public function getDescription(): ?string
     {
-        return $this->Description;
+        return $this->description;
     }
 
-    public function setDescription(?string $Description): static
+    public function setDescription(?string $description): static
     {
-        $this->Description = $Description;
+        $this->description = $description;
 
         return $this;
     }
 
     public function getOriginalPrice(): ?int
     {
-        return $this->OriginalPrice;
+        return $this->originalPrice;
     }
 
-    public function setOriginalPrice(int $OriginalPrice): static
+    public function setOriginalPrice(int $originalPrice): static
     {
-        $this->OriginalPrice = $OriginalPrice;
+        $this->originalPrice = $originalPrice;
 
         return $this;
     }
 
     public function getInflationAdjustedPrice(): ?int
     {
-        if ($this->OriginalPrice === null || $this->ReleaseDate === null) {
+        if ($this->originalPrice === null || $this->releaseDate === null) {
             return null;
         }
 
-        $releaseYear  = (int) $this->ReleaseDate->format('Y');
-        $currentYear  = (int) (new \DateTimeImmutable())->format('Y');
-        $years        = max(0, $currentYear - $releaseYear);
+        $releaseYear = (int) $this->releaseDate->format('Y');
+        $currentYear = (int) (new \DateTimeImmutable())->format('Y');
+        $years       = max(0, $currentYear - $releaseYear);
 
-        return (int) round($this->OriginalPrice * (1.03 ** $years));
+        return (int) round($this->originalPrice * (1.03 ** $years));
     }
 
     public function getSources(): ?string
     {
-        return $this->Sources;
+        return $this->sources;
     }
 
-    public function setSources(?string $Sources): static
+    public function setSources(?string $sources): static
     {
-        $this->Sources = $Sources;
+        $this->sources = $sources;
 
         return $this;
     }
 
     public function getProductType(): ?ProductType
     {
-        return $this->ProductType;
+        return $this->productType;
     }
 
-    public function setProductType(?ProductType $ProductType): static
+    public function setProductType(?ProductType $productType): static
     {
-        $this->ProductType = $ProductType;
+        $this->productType = $productType;
 
         return $this;
     }
 
     public function getLaunchOS(): ?OperatingSystem
     {
-        return $this->LaunchOS;
+        return $this->launchOS;
     }
 
-    public function setLaunchOS(?OperatingSystem $LaunchOS): static
+    public function setLaunchOS(?OperatingSystem $launchOS): static
     {
-        $this->LaunchOS = $LaunchOS;
+        $this->launchOS = $launchOS;
 
         return $this;
     }
 
     public function getLastSupportedOS(): ?OperatingSystem
     {
-        return $this->LastSupportedOS;
+        return $this->lastSupportedOS;
     }
 
-    public function setLastSupportedOS(?OperatingSystem $LastSupportedOS): static
+    public function setLastSupportedOS(?OperatingSystem $lastSupportedOS): static
     {
-        $this->LastSupportedOS = $LastSupportedOS;
+        $this->lastSupportedOS = $lastSupportedOS;
 
         return $this;
     }
 
     public function getModifiedByUser(): ?User
     {
-        return $this->ModifiedByUser;
+        return $this->modifiedByUser;
     }
 
-    public function setModifiedByUser(?User $ModifiedByUser): static
+    public function setModifiedByUser(?User $modifiedByUser): static
     {
-        $this->ModifiedByUser = $ModifiedByUser;
+        $this->modifiedByUser = $modifiedByUser;
 
         return $this;
     }
