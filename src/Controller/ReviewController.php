@@ -64,8 +64,12 @@ final class ReviewController extends AbstractController
     }
 
     #[Route('/{id}/approve', name: 'app_review_approve', methods: ['POST'])]
-    public function approve(int $id, ProductRepository $productRepository, EntityManagerInterface $em): Response
+    public function approve(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response
     {
+        if (!$this->isCsrfTokenValid('review_action_' . $id, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+
         $product = $productRepository->find($id);
 
         if (!$product) {
@@ -91,6 +95,10 @@ final class ReviewController extends AbstractController
     #[Route('/{id}/reject', name: 'app_review_reject', methods: ['POST'])]
     public function reject(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response
     {
+        if (!$this->isCsrfTokenValid('review_action_' . $id, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+
         $product = $productRepository->find($id);
 
         if (!$product) {
@@ -126,6 +134,10 @@ final class ReviewController extends AbstractController
     #[Route('/{id}/request-modification', name: 'app_review_request_modification', methods: ['POST'])]
     public function requestModification(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response
     {
+        if (!$this->isCsrfTokenValid('review_action_' . $id, $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Invalid CSRF token.');
+        }
+
         $product = $productRepository->find($id);
 
         if (!$product) {

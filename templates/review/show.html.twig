@@ -42,6 +42,7 @@
 
         <div class="flex gap-3 flex-wrap">
             <form method="post" action="{{ path('app_review_approve', {id: product.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('review_action_' ~ product.id) }}">
                 <button type="submit"
                         class="px-5 py-2.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
                     {% if is_granted('ROLE_BARISTA') %}Approve (final){% else %}Approve (send to barista){% endif %}
@@ -52,6 +53,7 @@
         <div>
             <p class="text-xs text-apple-gray mb-2 font-medium">Reject</p>
             <form method="post" action="{{ path('app_review_reject', {id: product.id}) }}" class="flex flex-col gap-2 max-w-md">
+                <input type="hidden" name="_token" value="{{ csrf_token('review_action_' ~ product.id) }}">
                 <textarea name="rejection_comment" rows="3"
                           placeholder="Rejection reason (required)"
                           required
@@ -67,6 +69,7 @@
             <div>
                 <p class="text-xs text-apple-gray mb-2 font-medium">Request modification</p>
                 <form method="post" action="{{ path('app_review_request_modification', {id: product.id}) }}" class="flex flex-col gap-2 max-w-md">
+                    <input type="hidden" name="_token" value="{{ csrf_token('review_action_' ~ product.id) }}">
                     <textarea name="modification_comment" rows="3"
                               placeholder="Describe the changes needed (required)"
                               required
