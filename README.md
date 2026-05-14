@@ -57,13 +57,56 @@ Each product page includes:
 
 ---
 
-## 🏗️ Tech Stack
+## 🏗️ Tech Stack & Architecture
 
 **Framework: [Symfony](https://symfony.com/)**
 
 Why Symfony and not something trendier? Because this project is about *joy*.
 
 I'm no longer a full-time web developer — I do this for fun, in the margins of a busy life. Symfony is a framework I know, and it lets me skip the setup friction and go straight to the part I actually love: the content, the design, the idea. Using something familiar means more time building, less time debugging a new ecosystem.
+
+**Justifications techniques :**
+- **Symfony 8 / PHP 8.4** : framework maîtrisé, permet d'aller directement au cœur du projet sans friction d'apprentissage.
+- **PostgreSQL 16** : robustesse relationnelle, support JSON natif pour le champ `options` des produits (couleurs, stockages…).
+- **Doctrine ORM** : mapping entité-table type-safe, QueryBuilder paramétré (protection SQLi native).
+- **Tailwind v4** : utility-first CSS avec tokens de design Apple personnalisés, responsive sans JavaScript.
+- **Symfony UX / Stimulus / Turbo** : progressive enhancement, transitions de page sans rechargement complet.
+
+```mermaid
+graph TD
+    Browser["🌐 Navigateur"]
+
+    subgraph Symfony["Symfony 8 (PHP 8.4)"]
+        direction TB
+        Security["Security — UuidAuthenticator"]
+        Controller["Controllers\nProduct · Review · Browse · User…"]
+        Repository["Repositories — Doctrine ORM"]
+        Twig["Templates Twig + Tailwind v4"]
+    end
+
+    DB[("PostgreSQL 16")]
+
+    Browser -->|"HTTPS"| Security
+    Security --> Controller
+    Controller --> Repository
+    Controller --> Twig
+    Repository -->|"QueryBuilder"| DB
+
+    subgraph Roles["Hiérarchie des rôles"]
+        direction LR
+        U["ROLE_USER"] --> R["ROLE_REVIEWER"]
+        R --> B["ROLE_BARISTA"]
+        B --> A["ROLE_ADMIN"]
+    end
+
+    subgraph Workflow["Workflow soumission"]
+        direction LR
+        P["Pending"] --> AR["ApprovedByReview"]
+        AR --> AP["Approved ✓"]
+        P --> NC["NeedsChanges"]
+        P --> RR["RejectedByReview"]
+    end
+```
 
 ---
 
@@ -100,6 +143,61 @@ I wanted:
 ## 🌐 Live
 
 [https://timemachine.eliottandre.com](https://timemachine.eliottandre.com)
+
+---
+
+## 🚀 Installation locale
+
+### Prérequis
+- PHP 8.4+
+- Composer
+- Docker (pour PostgreSQL) ou PostgreSQL 16 installé localement
+
+### Étapes
+
+```bash
+# 1. Cloner le repo
+git clone git@github.com:Bili-and-sheep/TimeMachine.git
+cd TimeMachine
+
+# 2. Installer les dépendances
+composer install
+
+# 3. Configurer l'environnement
+cp .env .env.local
+# Éditer .env.local avec vos valeurs (voir Variables ci-dessous)
+
+# 4. Démarrer la base de données
+docker compose up -d
+
+# 5. Créer le schéma et peupler les données de référence
+php bin/console doctrine:schema:create
+php bin/console app:populate-os
+php bin/console app:populate-product-type
+
+# 6. Lancer le serveur
+symfony serve
+# → http://localhost:8000
+```
+
+## ⚙️ Variables d'environnement
+
+| Variable | Exemple | Description |
+|---|---|---|
+| `APP_ENV` | `dev` | Environnement (`dev`, `prod`, `test`) |
+| `APP_SECRET` | `<random_32_chars>` | Clé secrète Symfony — **ne jamais commiter** |
+| `DATABASE_URL` | `postgresql://app:password@127.0.0.1:5432/app?serverVersion=16` | DSN PostgreSQL |
+| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Transport messages asynchrones |
+| `MAILER_DSN` | `null://null` | Configuration SMTP |
+
+### Compte de démo
+
+Créer un compte via `/register` → noter le UUID affiché une seule fois → se connecter via `/login`.
+
+Pour obtenir les droits admin :
+```sql
+UPDATE "user" SET roles = '["ROLE_ADMIN"]' WHERE id = 1;
+```
 
 ---
 
