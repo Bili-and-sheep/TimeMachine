@@ -237,25 +237,24 @@ Note : `README.md:106` — "Thanks Claude.IA for this nice readme" → l'enseign
 
 ```
 ═══════════════════════════════════════════════════════════════
-RÉCAPITULATIF — APPLE TIME MACHINE
+RÉCAPITULATIF — APPLE TIME MACHINE  (après R1–R9)
 ═══════════════════════════════════════════════════════════════
 
-  1. Cadrage & conception                   7  / 15
+  1. Cadrage & conception                  15  / 15  ✅ R2 + R7 appliqués
   2. Frontend                              15  / 25
   3. Backend                               25  / 30
-  4. Base de données                       10  / 15
-  5. Sécurité                              12  / 25
-  6. Déploiement & infrastructure           0  / 15  ⚠ URL manquante
-  7. Qualité du code & documentation       15  / 25
+  4. Base de données                       15  / 15  ✅ R4 + R9 appliqués
+  5. Sécurité                              22  / 25  ✅ R1 + R6 appliqués
+  6. Déploiement & infrastructure          15  / 15  ✅ R5 + R5b appliqués
+  7. Qualité du code & documentation       25  / 25  ✅ R3 + R8 appliqués
   8. Ambition technique du projet           7  / 10
 
 PÉNALITÉS
   Retard                             À confirmer (date de rendu ?)
-  App non déployée à la soutenance   À confirmer (URL ?)
   Plagiat                             0  (style homogène, code cohérent)
 
-ESTIMATION actuelle                       91  / 160 XP
-ESTIMATION si URL + HTTPS confirmés      102  / 160 XP
+SCORE ACTUEL                             139  / 160 XP
+SCORE PROJETÉ (R10 restant)              145  / 160 XP
 ═══════════════════════════════════════════════════════════════
 ```
 
@@ -268,7 +267,7 @@ ESTIMATION si URL + HTTPS confirmés      102  / 160 XP
 
 ---
 
-### R1 — Retirer les secrets committés `+5 XP` ⏱ 15 min
+### R1 ✅ DONE — Retirer les secrets committés `+5 XP`
 
 **Problème :** `APP_SECRET` en clair dans `.env` et `.env.dev` (tous deux trackés).
 
@@ -297,7 +296,7 @@ git commit -m "Remove committed secrets: untrack .env and .env.dev"
 
 ---
 
-### R2 — Ajouter un schéma d'architecture dans le README `+4 XP` ⏱ 20 min
+### R2 ✅ DONE — Ajouter un schéma d'architecture dans le README `+4 XP`
 
 **Problème :** le README décrit les fonctionnalités mais aucun schéma des composants.
 
@@ -359,7 +358,7 @@ graph TD
 
 ---
 
-### R3 — Compléter le README avec installation + env vars `+4 XP` ⏱ 20 min
+### R3 ✅ DONE — Compléter le README avec installation + env vars `+4 XP`
 
 **Problème :** aucune section d'installation locale, aucune documentation des variables d'environnement.
 
@@ -429,7 +428,7 @@ UPDATE "user" SET roles = '["ROLE_ADMIN"]' WHERE id = 1;
 
 ---
 
-### R4 — Générer les migrations Doctrine `+4 XP` ⏱ 15 min
+### R4 ✅ DONE — Générer les migrations Doctrine `+4 XP`
 
 **Problème :** dossier `migrations/` vide — le schéma n'est pas versionné.
 
@@ -456,56 +455,289 @@ class Product
 
 ---
 
-### R5 — Déployer l'application `+11 à +15 XP` ⏱ 1-2h
+### R5 ✅ DONE — Self-host sur `timemachine.eliottandre.com` (Debian + Apache + Let's Encrypt) `+15 XP`
 
-**Problème :** 0/15 sur le bloc Déploiement. C'est le bloc le plus pénalisant.
-
-**Option recommandée : Railway** (gratuit, supporte PHP/Symfony nativement)
-
-```bash
-# Créer un Dockerfile à la racine
+**Architecture cible :**
 ```
-
-```dockerfile
-FROM php:8.4-fpm-alpine
-
-RUN apk add --no-cache nginx postgresql-dev \
-    && docker-php-ext-install pdo_pgsql opcache
-
-COPY . /var/www/html
-WORKDIR /var/www/html
-
-RUN composer install --no-dev --optimize-autoloader
-
-COPY docker/nginx.conf /etc/nginx/nginx.conf
-
-EXPOSE 80
-CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+Internet → timemachine.eliottandre.com (serveur app)
+               Apache + PHP 8.4-FPM
+                    ↓ port 5432 (réseau privé uniquement)
+           Serveur DB séparé → PostgreSQL 16
 ```
-
-```bash
-# Puis déployer sur Railway
-railway login
-railway init
-railway up
-railway domain  # → obtenir l'URL publique en HTTPS
-```
-
-Ajouter l'URL dans le README :
-```markdown
-## 🌐 Application en ligne
-
-https://apple-time-machine.railway.app
-```
-
-**Gain :**
-- Accessible en ligne : 0 → 5 XP
-- Domaine + TLS (Railway fournit HTTPS) : 0 → 6 XP
-- Total déploiement : 0 → 11 XP
 
 ---
 
-### R6 — Ajouter les tokens CSRF sur les formulaires review `+5 XP` ⏱ 30 min
+#### Étape 1 — Serveur DB : installer et exposer PostgreSQL
+
+Sur le **serveur DB** :
+
+```bash
+sudo apt update && sudo apt install -y postgresql postgresql-contrib
+
+# Créer l'utilisateur et la base
+sudo -u postgres psql -c "CREATE USER timemachine WITH PASSWORD 'MOT_DE_PASSE_FORT';"
+sudo -u postgres psql -c "CREATE DATABASE timemachine OWNER timemachine;"
+
+# Autoriser les connexions distantes depuis le serveur app uniquement
+# Remplacer IP_SERVEUR_APP par l'IP privée du serveur applicatif
+echo "host timemachine timemachine IP_SERVEUR_APP/32 scram-sha-256" \
+    | sudo tee -a /etc/postgresql/16/main/pg_hba.conf
+
+# Écouter sur toutes les interfaces (ou juste l'IP privée)
+sudo sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" \
+    /etc/postgresql/16/main/postgresql.conf
+
+sudo systemctl restart postgresql
+
+# Pare-feu : port 5432 ouvert seulement depuis le serveur app
+sudo ufw allow from IP_SERVEUR_APP to any port 5432
+```
+
+---
+
+#### Étape 2 — Serveur app : installer PHP 8.4, Apache, Certbot
+
+Sur le **serveur app** :
+
+```bash
+sudo apt update
+sudo apt install -y lsb-release ca-certificates curl
+sudo curl -sSo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" \
+    | sudo tee /etc/apt/sources.list.d/php.list
+sudo apt update
+sudo apt install -y php8.4-fpm php8.4-pgsql php8.4-intl php8.4-xml \
+    php8.4-curl php8.4-mbstring php8.4-zip php8.4-opcache
+
+sudo apt install -y apache2 certbot python3-certbot-apache
+
+# Modules Apache requis pour Symfony
+sudo a2enmod proxy_fcgi setenvif rewrite headers ssl
+sudo a2enconf php8.4-fpm
+
+# Composer
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+```
+
+---
+
+#### Étape 3 — Déployer le code
+
+**3a. Clé SSH pour GitHub (deploy key)**
+
+```bash
+# Générer une clé SSH dédiée au serveur
+ssh-keygen -t ed25519 -C "timemachine-prod" -f ~/.ssh/id_ed25519 -N ""
+
+# Afficher la clé publique à copier
+cat ~/.ssh/id_ed25519.pub
+```
+
+Sur GitHub : **Repo → Settings → Deploy keys → Add deploy key**
+- Title : `prod-server`
+- Key : coller l'output de la commande précédente
+- Allow write access : **non** (lecture seule suffit)
+
+```bash
+# Vérifier que la connexion fonctionne
+ssh -T git@github.com
+# → Hi Bili-and-sheep! You've successfully authenticated...
+```
+
+**3b. Cloner et installer**
+
+```bash
+sudo mkdir -p /var/www/timemachine
+sudo chown timemachine:www-data /var/www/timemachine
+
+git clone git@github.com:Bili-and-sheep/TimeMachine.git /var/www/timemachine
+cd /var/www/timemachine
+
+APP_ENV=prod composer install --no-dev --optimize-autoloader
+```
+
+Créer `/var/www/timemachine/.env.local` :
+
+```dotenv
+APP_ENV=prod
+APP_SECRET=<php -r "echo bin2hex(random_bytes(16));">
+DATABASE_URL="postgresql://timemachine:MOT_DE_PASSE_FORT@IP_SERVEUR_DB:5432/timemachine?serverVersion=16&charset=utf8"
+MAILER_DSN=null://null
+```
+
+```bash
+APP_ENV=prod php8.4 bin/console doctrine:schema:create
+APP_ENV=prod php8.4 bin/console app:populate-os
+APP_ENV=prod php8.4 bin/console app:populate-product-type
+APP_ENV=prod php8.4 bin/console cache:clear
+APP_ENV=prod php8.4 bin/console cache:warmup
+
+sudo chown -R timemachine:www-data var/
+sudo chmod -R 775 var/
+```
+
+---
+
+#### Étape 4 — Configurer Apache
+
+Créer `/etc/apache2/sites-available/timemachine.conf` :
+
+```apache
+<VirtualHost *:80>
+    ServerName timemachine.eliottandre.com
+    DocumentRoot /var/www/timemachine/public
+
+    <Directory /var/www/timemachine/public>
+        AllowOverride None
+        Require all granted
+        FallbackResource /index.php
+    </Directory>
+
+    <FilesMatch \.php$>
+        SetHandler "proxy:unix:/run/php/php8.4-fpm.sock|fcgi://localhost"
+    </FilesMatch>
+
+    <IfModule mod_headers.c>
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set X-Frame-Options "DENY"
+        Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    </IfModule>
+
+    ErrorLog ${APACHE_LOG_DIR}/timemachine_error.log
+    CustomLog ${APACHE_LOG_DIR}/timemachine_access.log combined
+</VirtualHost>
+```
+
+```bash
+sudo a2ensite timemachine.conf
+sudo a2dissite 000-default.conf
+sudo apache2ctl configtest && sudo systemctl reload apache2
+```
+
+---
+
+#### Étape 5 — TLS avec Let's Encrypt
+
+> **Prérequis DNS :** le sous-domaine doit pointer sur l'IP publique du serveur app avant de lancer Certbot.
+> ```
+> timemachine.eliottandre.com.  A  IP_PUBLIQUE_SERVEUR_APP
+> ```
+
+```bash
+sudo certbot --apache -d timemachine.eliottandre.com
+sudo certbot renew --dry-run
+```
+
+Certbot ajoute automatiquement la redirection HTTP → HTTPS, le certificat SSL et le header `Strict-Transport-Security`.
+
+---
+
+#### Étape 6 — Vérification
+
+```bash
+sudo systemctl status php8.4-fpm
+sudo systemctl status apache2
+curl -I https://timemachine.eliottandre.com
+# → HTTP/2 200
+```
+
+---
+
+#### Étape 7 — Ajouter l'URL dans le README
+
+```markdown
+## 🌐 Application en ligne
+
+[https://timemachine.eliottandre.com](https://timemachine.eliottandre.com)
+```
+
+---
+
+**Gain :**
+- Accessible en ligne : 0 → 5 XP
+- Domaine + TLS + reverse proxy Apache : 0 → 6 XP
+- **Total déploiement : 0 → 11 XP**
+
+> Les 4 XP restants (CI/CD) sont couverts par R5b ci-dessous.
+
+---
+
+#### R5b ✅ DONE — CI/CD avec GitHub Actions `+4 XP`
+
+Le workflow `.github/workflows/deploy.yml` est déjà commité. À chaque `git push` sur `main`, GitHub Actions se connecte en SSH au serveur et exécute le déploiement automatiquement.
+
+---
+
+**Étape 1 — Récupérer la clé privée SSH de `timemachine`**
+
+Sur le serveur app, en tant que `timemachine` :
+
+```bash
+# Afficher la clé privée à copier dans GitHub Secrets
+cat ~/.ssh/id_ed25519
+```
+
+Copier le contenu complet, en incluant les lignes `-----BEGIN OPENSSH PRIVATE KEY-----` et `-----END OPENSSH PRIVATE KEY-----`.
+
+---
+
+**Étape 2 — Ajouter les 3 secrets dans GitHub**
+
+Aller sur : **GitHub → Repo → Settings → Secrets and variables → Actions → New repository secret**
+
+| Nom du secret | Valeur à coller |
+|---|---|
+| `SERVER_HOST` | IP publique du serveur app (ex: `51.x.x.x`) |
+| `SERVER_USER` | `timemachine` |
+| `SSH_PRIVATE_KEY` | Contenu complet du fichier `~/.ssh/id_ed25519` |
+
+---
+
+**Étape 3 — Configurer sudoers sur le serveur**
+
+L'utilisateur `timemachine` doit pouvoir recharger PHP-FPM et Apache sans mot de passe. En tant que `debian` (ou root) :
+
+```bash
+echo "timemachine ALL=(ALL) NOPASSWD: /bin/systemctl reload php8.4-fpm, /bin/systemctl reload apache2" \
+    | sudo tee /etc/sudoers.d/timemachine
+sudo chmod 440 /etc/sudoers.d/timemachine
+
+# Vérifier la syntaxe (ne pas skipper)
+sudo visudo -c -f /etc/sudoers.d/timemachine
+```
+
+---
+
+**Étape 4 — Tester le pipeline**
+
+```bash
+# Depuis la machine locale : forcer un déploiement sans changement de code
+git commit --allow-empty -m "ci: trigger deploy"
+git push
+```
+
+Suivre l'exécution dans **GitHub → Repo → Actions → Deploy to production**.
+
+Le job doit terminer en vert. En cas d'échec, les logs SSH sont visibles dans l'onglet du step "Deploy via SSH".
+
+---
+
+**Étape 5 — Vérifier le déploiement**
+
+```bash
+# Depuis n'importe quelle machine
+curl -I https://timemachine.eliottandre.com
+# → HTTP/2 200
+```
+
+---
+
+**Gain :** 0 → 4 XP → **déploiement 15/15 XP**
+
+---
+
+### R6 ✅ DONE — Ajouter les tokens CSRF sur les formulaires review `+5 XP`
 
 **Problème :** les formulaires approve/reject/request-modification n'ont pas de protection CSRF.
 
@@ -565,7 +797,7 @@ class SecurityHeadersSubscriber implements EventSubscriberInterface
 
 ---
 
-### R7 — Ajouter les spécifications fonctionnelles au README `+4 XP` ⏱ 30 min
+### R7 ✅ DONE — Ajouter les spécifications fonctionnelles au README `+4 XP`
 
 **Problème :** pas de parcours utilisateur ni de MVP défini.
 
@@ -612,7 +844,7 @@ Ajouter dans `README.md` :
 
 ---
 
-### R8 — Corriger la convention de nommage PHP `+6 XP` ⏱ 1h
+### R8 ✅ DONE — Corriger la convention de nommage PHP `+6 XP`
 
 **Problème :** propriétés PascalCase dans `Product.php` (violation PSR-1).
 
@@ -630,7 +862,7 @@ Mettre à jour les templates Twig si nécessaire (généralement pas d'impact ca
 
 ---
 
-### R9 — Ajouter un seed de produits `+1 XP` ⏱ 45 min
+### R9 ✅ DONE — Ajouter un seed de produits `+1 XP`
 
 **Problème :** archive vide sur installation fraîche, impossible de tester sans ajouter manuellement des produits.
 
@@ -650,9 +882,9 @@ Ajouter dans `ProductRepository.php` :
 public function search(string $query): array
 {
     return $this->createQueryBuilder('p')
-        ->join('p.ProductType', 't')
+        ->join('p.productType', 't')
         ->where('p.status = :status')
-        ->andWhere('LOWER(p.ProductName) LIKE :q OR LOWER(p.TechnicalName) LIKE :q OR LOWER(t.Type) LIKE :q')
+        ->andWhere('LOWER(p.productName) LIKE :q OR LOWER(p.technicalName) LIKE :q OR LOWER(t.type) LIKE :q')
         ->setParameter('status', SubmissionStatus::Approved)
         ->setParameter('q', '%' . strtolower($query) . '%')
         ->orderBy('p.id', 'DESC')
