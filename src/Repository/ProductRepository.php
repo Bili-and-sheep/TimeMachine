@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Product;
+use App\Enum\SubmissionStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -25,6 +26,22 @@ class ProductRepository extends ServiceEntityRepository
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
+    }
+
+    /** @return Product[] */
+    public function search(string $query): array
+    {
+        $q = '%' . mb_strtolower(trim($query)) . '%';
+
+        return $this->createQueryBuilder('p')
+            ->join('p.productType', 't')
+            ->where('p.status = :status')
+            ->andWhere('LOWER(p.productName) LIKE :q OR LOWER(p.technicalName) LIKE :q OR LOWER(t.type) LIKE :q')
+            ->setParameter('status', SubmissionStatus::Approved)
+            ->setParameter('q', $q)
+            ->orderBy('p.id', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     /** @return Product[] */

@@ -46,6 +46,11 @@
         </div>
 
         <div class="flex items-center gap-5">
+            <form method="get" action="{{ path('app_search') }}" class="flex items-center">
+                <input type="search" name="q" placeholder="Search…"
+                       class="w-28 focus:w-44 transition-all bg-white/10 hover:bg-white/15 focus:bg-white/20 text-white/90 placeholder:text-white/50 text-xs rounded-full px-3 py-1 outline-none border border-transparent focus:border-white/30">
+            </form>
+
             {% if is_granted('ROLE_USER') %}
                 <a href="{{ path('app_product_new') }}"
                    class="text-white/80 hover:text-white text-xs border border-white/30 hover:border-white/60 rounded-full px-3 py-1 transition-all">

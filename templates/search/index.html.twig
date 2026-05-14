@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+{% block title %}{% if query %}{{ query }} — {% endif %}Search — Apple Time Machine{% endblock %}
+
+{% block body %}
+<div class="max-w-[1024px] mx-auto px-6 py-12">
+
+    {# ── Search form ── #}
+    <form method="get" action="{{ path('app_search') }}" class="mb-10">
+        <div class="flex items-center gap-3 max-w-xl mx-auto">
+            <input
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Search products…"
+                autofocus
+                class="flex-1 border border-apple-border rounded-full px-5 py-2.5 text-sm text-apple-dark placeholder:text-apple-gray focus:outline-none focus:border-apple-blue transition-colors"
+            >
+            <button type="submit"
+                    class="px-5 py-2.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
+                Search
+            </button>
+        </div>
+    </form>
+
+    {# ── Results ── #}
+    {% if query is empty %}
+        <p class="text-center text-apple-gray text-sm">Enter a product name, category, or year to search the archive.</p>
+
+    {% elseif products is empty %}
+        <div class="text-center py-16">
+            <p class="text-apple-gray text-sm mb-1">No results for</p>
+            <p class="text-apple-dark font-semibold text-lg">"{{ query }}"</p>
+            {% if is_granted('ROLE_USER') %}
+                <a href="{{ path('app_product_new') }}" class="inline-block mt-4 text-apple-blue text-sm hover:underline">
+                    Submit it to the archive ›
+                </a>
+            {% endif %}
+        </div>
+
+    {% else %}
+        <p class="text-xs text-apple-gray mb-6 text-center">
+            {{ products|length }} result{{ products|length > 1 ? 's' : '' }} for "<span class="text-apple-dark">{{ query }}</span>"
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-apple-border">
+            {% for product in products %}
+                <a href="{{ path('app_product_show', {id: product.id}) }}"
+                   class="bg-apple-light hover:bg-white transition-colors p-8 text-center flex flex-col items-center gap-2">
+                    {% if product.images is not empty %}
+                        <img src="{{ product.images.first.path }}" alt="{{ product.productName }}"
+                             class="w-28 h-28 object-contain mb-2">
+                    {% else %}
+                        <div class="w-28 h-28 bg-white rounded-xl mb-2"></div>
+                    {% endif %}
+                    <p class="text-[10px] text-apple-gray uppercase tracking-widest">{{ product.productType.type }}</p>
+                    <p class="text-xl font-semibold tracking-tight text-apple-dark">{{ product.productName }}</p>
+                    <p class="text-xs text-apple-gray">
+                        {% if product.releaseDate %}{{ product.releaseDate|date('Y') }}{% endif %}
+                        {% if product.discontinuedYear %} — {{ product.discontinuedYear|date('Y') }}{% endif %}
+                    </p>
+                    <span class="text-sm text-apple-blue mt-1">Learn more ›</span>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
