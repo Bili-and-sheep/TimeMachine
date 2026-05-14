@@ -47,13 +47,13 @@
 | **Preuve** | `templates/base.html.twig` — héritage Twig, blocks. Tailwind v4 avec tokens Apple (`app.css:4-9`). Partials `user/_form.html.twig`, `user/_delete_form.html.twig` |
 | **Manque** | Pas de macros Twig ni de composants UX. JS client = `console.log` uniquement (`assets/app.js:7`). La page profil (`mydrilla.html.twig`) mélange Tailwind v3/v4, a un `<div>` non fermé et du code commenté |
 
-#### Fonctionnalités clés `6 / 12`
+#### Fonctionnalités clés `6 / 12` → `10 / 12` ✅ R10
 
 | | |
 |---|---|
-| **Niveau** | Intermédiaire |
+| **Niveau** | Intermédiaire → Avancé |
 | **Fonctionne** | Browse par catégorie (`BrowseController.php`), page produit complète (`product/show.html.twig`), soumission (`ProductController.php:23`), workflow review approve/reject (`ReviewController.php:63-148`) |
-| **Absent** | **Recherche** : `grep -rn "search" src/ templates/` → 0 résultat. Le README promet "Full-text search" (lignes 25-27) |
+| **✅ R10** | **Recherche** : `SearchController.php` + `ProductRepository::search()` + `templates/search/index.html.twig` + input dans la nav |
 | **Absent** | **Accueil** : `HomeController.php:18` → `findLastApproved()` = 1 seul produit. README promet "featured AND recently added products" |
 | **Absent** | **Upload d'image** : `ProductFormType.php` — aucun champ image dans le formulaire de soumission |
 
@@ -237,24 +237,23 @@ Note : `README.md:106` — "Thanks Claude.IA for this nice readme" → l'enseign
 
 ```
 ═══════════════════════════════════════════════════════════════
-RÉCAPITULATIF — APPLE TIME MACHINE  (après R1–R9)
+RÉCAPITULATIF — APPLE TIME MACHINE  (après R1–R10 — toutes remédiations appliquées)
 ═══════════════════════════════════════════════════════════════
 
-  1. Cadrage & conception                  15  / 15  ✅ R2 + R7 appliqués
-  2. Frontend                              15  / 25
+  1. Cadrage & conception                  15  / 15  ✅ R2 + R7
+  2. Frontend                              21  / 25  ✅ R10 (recherche)
   3. Backend                               25  / 30
-  4. Base de données                       15  / 15  ✅ R4 + R9 appliqués
-  5. Sécurité                              22  / 25  ✅ R1 + R6 appliqués
-  6. Déploiement & infrastructure          15  / 15  ✅ R5 + R5b appliqués
-  7. Qualité du code & documentation       25  / 25  ✅ R3 + R8 appliqués
+  4. Base de données                       15  / 15  ✅ R4 + R9
+  5. Sécurité                              22  / 25  ✅ R1 + R6
+  6. Déploiement & infrastructure          15  / 15  ✅ R5 + R5b
+  7. Qualité du code & documentation       25  / 25  ✅ R3 + R8
   8. Ambition technique du projet           7  / 10
 
 PÉNALITÉS
   Retard                             À confirmer (date de rendu ?)
   Plagiat                             0  (style homogène, code cohérent)
 
-SCORE ACTUEL                             139  / 160 XP
-SCORE PROJETÉ (R10 restant)              145  / 160 XP
+SCORE FINAL ESTIMÉ                       145  / 160 XP
 ═══════════════════════════════════════════════════════════════
 ```
 
@@ -872,7 +871,7 @@ Créer `src/Command/PopulateProductCommand.php` avec 5 à 10 produits Apple disc
 
 ---
 
-### R10 — Implémenter la recherche `+6 XP` ⏱ 2h
+### R10 ✅ DONE — Implémenter la recherche `+6 XP`
 
 **Problème :** fonctionnalité décrite dans le README mais absente du code.
 
