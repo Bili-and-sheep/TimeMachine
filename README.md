@@ -110,6 +110,45 @@ graph TD
 
 ---
 
+## 📋 Functional Specifications
+
+### MVP
+
+| Feature | Status |
+|---|---|
+| Anonymous registration (UUID, no email) | ✅ |
+| Login by UUID | ✅ |
+| Submit a discontinued Apple product | ✅ |
+| First-pass review by a reviewer | ✅ |
+| Final approval by a barista | ✅ |
+| Public display of approved products | ✅ |
+| Browse by category (iPhone, Mac, iPad…) | ✅ |
+| Inflation-adjusted price calculation | ✅ |
+| Modification request workflow | ✅ |
+| Audit history per product | ✅ |
+
+### User journeys
+
+**Contributor (`ROLE_USER`)**
+1. Register → receive a one-time UUID
+2. Log in with the UUID
+3. Submit a product (name, release date, price, OS, options…)
+4. Product enters `Pending` status
+5. Wait for reviewer approval — track status on the account page
+
+**Reviewer (`ROLE_REVIEWER`)**
+1. See the notification badge with the number of pending submissions
+2. Open each pending product's review page
+3. Approve (→ forwarded to barista), reject, or request modifications with a comment
+
+**Barista / Admin (`ROLE_BARISTA`)**
+1. See products approved by reviewers
+2. Give final approval → product becomes publicly visible
+3. Edit or delete any existing product
+4. Consult the full modification history
+
+---
+
 ## 💡 Why Apple? Why discontinued products?
 
 I'm a huge fan of Apple — especially the **Jony Ive era**, when hardware design was its own art form.
