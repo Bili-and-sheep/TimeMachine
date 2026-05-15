@@ -14,7 +14,6 @@ class UserType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('uuid')
             ->add('roles', ChoiceType::class, [
                 'choices' => [
                     'User'     => Role::User->value,
