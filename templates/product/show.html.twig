@@ -33,8 +33,8 @@
                 {% if product.originalPrice %}
                     <p class="mt-2 text-[15px] text-apple-dark">
                         À partir de <span class="font-medium">${{ product.originalPrice }}</span>
-                        {% if product.inflationAdjustedPrice %}
-                            <span class="text-apple-gray"> ou ${{ product.inflationAdjustedPrice }} en valeur actuelle<sup class="text-[10px]">°°</sup></span>
+                        {% if product|inflation_adjusted %}
+                            <span class="text-apple-gray"> ou ${{ product|inflation_adjusted }} en valeur actuelle<sup class="text-[10px]">°°</sup></span>
                         {% endif %}
                     </p>
                 {% endif %}
@@ -127,8 +127,8 @@
                                                 <div class="text-right shrink-0">
                                                     <p class="text-[11px] text-apple-gray leading-tight">À partir de</p>
                                                     <p class="text-[13px] font-semibold text-apple-dark">${{ product.originalPrice }}</p>
-                                                    {% if product.inflationAdjustedPrice %}
-                                                        <p class="text-[10px] text-apple-gray">ou ${{ product.inflationAdjustedPrice }} aujourd'hui<sup>°°</sup></p>
+                                                    {% if product|inflation_adjusted %}
+                                                        <p class="text-[10px] text-apple-gray">ou ${{ product|inflation_adjusted }} aujourd'hui<sup>°°</sup></p>
                                                     {% endif %}
                                                 </div>
                                             {% endif %}
@@ -159,8 +159,8 @@
                                 <div class="text-right shrink-0">
                                     <p class="text-[11px] text-apple-gray leading-tight">À partir de</p>
                                     <p class="text-[13px] font-semibold text-apple-dark">${{ product.originalPrice }}</p>
-                                    {% if product.inflationAdjustedPrice %}
-                                        <p class="text-[10px] text-apple-gray">ou ${{ product.inflationAdjustedPrice }} aujourd'hui<sup>°°</sup></p>
+                                    {% if product|inflation_adjusted %}
+                                        <p class="text-[10px] text-apple-gray">ou ${{ product|inflation_adjusted }} aujourd'hui<sup>°°</sup></p>
                                     {% endif %}
                                 </div>
                             {% endif %}
@@ -224,6 +224,7 @@
     <div class="max-w-[680px] mx-auto px-6">
         <h2 class="text-3xl font-bold tracking-tight text-apple-dark mb-8">Tech Specs</h2>
         <dl class="divide-y divide-apple-border">
+            {% set inflationPrice = product|inflation_adjusted %}
             {% set specs = [
                 ['Category',          product.productType.type],
                 ['Release date',      product.releaseDate ? product.releaseDate|date('F j, Y') : null],
@@ -231,7 +232,7 @@
                 ['Launch OS',         product.launchOS ?? null],
                 ['Last supported OS', product.lastSupportedOS ?? null],
                 ['Original price',    product.originalPrice ? '$' ~ product.originalPrice : null],
-                ['Inflation-adjusted','$' ~ (product.inflationAdjustedPrice ?? '—') ~ ' (today)'],
+                ['Inflation-adjusted', inflationPrice is not null ? '$' ~ inflationPrice ~ ' (today)' : null],
             ] %}
             {% for spec in specs %}
                 {% if spec[1] %}
