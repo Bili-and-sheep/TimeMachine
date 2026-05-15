@@ -43,7 +43,7 @@ class User implements UserInterface
 
     public function setUuid(string $uuid): static
     {
-        $this->uuid = hash('sha256', $uuid);
+        $this->uuid = password_hash($uuid, PASSWORD_BCRYPT);
         return $this;
     }
 
