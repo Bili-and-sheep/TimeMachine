@@ -41,7 +41,13 @@ class UuidAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('Please enter your account UUID.');
         }
 
-        $user = $this->userRepository->findOneBy(['uuid' => hash('sha256', $uuid)]);
+        $user = null;
+        foreach ($this->userRepository->findAll() as $candidate) {
+            if (password_verify($uuid, (string) $candidate->getUuid())) {
+                $user = $candidate;
+                break;
+            }
+        }
 
         if ($user === null) {
             throw new CustomUserMessageAuthenticationException('Invalid UUID — no account found.');
