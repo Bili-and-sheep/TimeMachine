@@ -17,4 +17,12 @@ class ImageUploadService
 
         return '/uploads/products/' . $filename;
     }
+
+    public function delete(string $path): void
+    {
+        $fullPath = $this->uploadDir . '/' . basename($path);
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+    }
 }

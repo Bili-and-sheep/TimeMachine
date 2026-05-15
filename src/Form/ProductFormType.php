@@ -81,12 +81,12 @@ class ProductFormType extends AbstractType
                 'mapped'      => false,
                 'required'    => false,
                 'constraints' => [
-                    new All([
-                        new Image([
-                            'maxSize'          => '15M',
-                            'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp'],
-                            'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, or WebP).',
-                        ]),
+                    new All(constraints: [
+                        new Image(
+                            maxSize: '15M',
+                            mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                            mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, or WebP).',
+                        ),
                     ]),
                 ],
             ])

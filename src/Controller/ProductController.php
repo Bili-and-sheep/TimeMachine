@@ -112,6 +112,30 @@ final class ProductController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/image/{imageId}/delete', name: 'app_product_image_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_BARISTA')]
+    public function deleteImage(int $id, int $imageId, Request $request, ProductRepository $productRepository, EntityManagerInterface $em, ImageUploadService $imageUploadService): Response
+    {
+        $product = $productRepository->find($id);
+
+        if (!$product) {
+            throw $this->createNotFoundException('Product not found.');
+        }
+
+        if ($this->isCsrfTokenValid('delete_image_' . $imageId, $request->request->get('_token'))) {
+            foreach ($product->getImages() as $image) {
+                if ($image->getId() === $imageId) {
+                    $imageUploadService->delete($image->getPath());
+                    $product->removeImage($image);
+                    $em->flush();
+                    break;
+                }
+            }
+        }
+
+        return $this->redirectToRoute('app_product_edit', ['id' => $id]);
+    }
+
     #[Route('/{id}/delete', name: 'app_product_delete', methods: ['POST'])]
     #[IsGranted('ROLE_BARISTA')]
     public function delete(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response
