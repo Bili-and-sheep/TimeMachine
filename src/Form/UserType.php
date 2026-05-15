@@ -5,7 +5,6 @@ namespace App\Form;
 use App\Entity\User;
 use App\Enum\Role;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -24,22 +23,11 @@ class UserType extends AbstractType
                     'Admin'    => Role::Admin->value,
                 ],
                 'expanded' => true,
-                'multiple' => false,
+                'multiple' => true,
                 'label'    => 'Role',
             ])
         ;
 
-        $builder->get('roles')
-            ->addModelTransformer(new CallbackTransformer(
-                function (array $rolesArray): string {
-                    // Pick the first stored role, fall back to ROLE_USER
-                    return $rolesArray[0] ?? Role::User->value;
-                },
-                function (string $roleString): array {
-                    return [$roleString];
-                }
-            ))
-        ;
     }
 
     public function configureOptions(OptionsResolver $resolver): void
