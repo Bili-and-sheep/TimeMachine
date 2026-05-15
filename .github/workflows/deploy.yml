@@ -16,7 +16,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
-            sudo chown -R $USER:$USER /var/www/timemachine
             git config --global --add safe.directory /var/www/timemachine
             cd /var/www/timemachine
             git fetch origin
