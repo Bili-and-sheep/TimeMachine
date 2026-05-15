@@ -206,15 +206,13 @@ composer install
 cp .env .env.local
 # Edit .env.local with your values (see Variables below)
 
-# 4. Start the database
-docker compose up -d
-
-# 5. Create the schema and seed reference data
+# 4. Create the schema and seed reference data
+php bin/console doctrine:database:create
 php bin/console doctrine:schema:create
 php bin/console app:populate-os
 php bin/console app:populate-product-type
 
-# 6. Start the server
+# 5. Start the server
 symfony serve
 # → http://localhost:8000
 ```
@@ -246,7 +244,7 @@ This project is actively in development. Contributions, feedback, and product re
 
 ---
 
-## 🔜 [Roadmap](ROADMAP.md)
+## 🔜 [Roadmap](roadmap.md)
 
 ---
 

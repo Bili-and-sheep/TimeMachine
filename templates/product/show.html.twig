@@ -34,7 +34,7 @@
                     <p class="mt-2 text-[15px] text-apple-dark">
                         À partir de <span class="font-medium">${{ product.originalPrice }}</span>
                         {% if product|inflation_adjusted %}
-                            <span class="text-apple-gray"> ou ${{ product|inflation_adjusted }} en valeur actuelle<sup class="text-[10px]">°°</sup></span>
+                            <span class="text-apple-gray"> ou ${{ product|inflation_adjusted }} en valeur actuelle<sup class="text-[10px]"><a href="https://www.worldbank.org/ext/en/home">°°</a></sup></span>
                         {% endif %}
                     </p>
                 {% endif %}

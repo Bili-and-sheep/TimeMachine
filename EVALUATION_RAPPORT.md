@@ -338,8 +338,6 @@ public function onKernelResponse(ResponseEvent $event): void
 
 ## Points à surveiller pour la soutenance
 
-- **GentlePuppyController** (`/puppy`) : vestige de scaffold Symfony, sans impact sur la note ici mais visible lors d'une lecture humaine. Supprimer avant la démo.
-- **Compte démo admin** : la procédure actuelle (`UPDATE "user" SET roles = ...`) suppose un accès direct à la base. Prévoir une démonstration en live avec un compte admin déjà provisionné.
 - **CSP `unsafe-inline`** : si le correcteur teste avec DevTools, une CSP trop permissive (`unsafe-inline`) sera visible. Idéalement, externaliser les styles inline restants avant d'activer la CSP.
 
 ---
