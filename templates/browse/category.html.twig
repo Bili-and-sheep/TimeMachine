@@ -23,22 +23,7 @@
 {% else %}
     <div class="max-w-[1024px] mx-auto px-6 py-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-apple-border">
         {% for product in products %}
-            <a href="{{ path('app_product_show', {id: product.id}) }}"
-               class="bg-apple-light hover:bg-white transition-colors p-8 text-center flex flex-col items-center gap-2">
-                {% if product.images is not empty %}
-                    <img src="{{ product.images.first.path }}" alt="{{ product.productName }}"
-                         class="w-28 h-28 object-contain mb-2">
-                {% else %}
-                    <div class="w-28 h-28 bg-white rounded-xl mb-2"></div>
-                {% endif %}
-                <p class="text-[10px] text-apple-gray uppercase tracking-widest">{{ product.productType.type }}</p>
-                <p class="text-xl font-semibold tracking-tight text-apple-dark">{{ product.productName }}</p>
-                <p class="text-xs text-apple-gray">
-                    {% if product.releaseDate %}{{ product.releaseDate|date('Y') }}{% endif %}
-                    {% if product.discontinuedYear %} — {{ product.discontinuedYear|date('Y') }}{% endif %}
-                </p>
-                <span class="text-sm text-apple-blue mt-1">Learn more ›</span>
-            </a>
+            {% include 'product/_product_card.html.twig' %}
         {% endfor %}
     </div>
 {% endif %}
