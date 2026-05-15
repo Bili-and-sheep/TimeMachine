@@ -9,11 +9,14 @@ use App\Entity\Tag;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Image;
 
 class ProductFormType extends AbstractType
 {
@@ -71,6 +74,21 @@ class ProductFormType extends AbstractType
                 'expanded'     => true,
                 'label'        => 'Tags',
                 'required'     => false,
+            ])
+            ->add('imageFiles', FileType::class, [
+                'label'       => 'Images',
+                'multiple'    => true,
+                'mapped'      => false,
+                'required'    => false,
+                'constraints' => [
+                    new All([
+                        new Image([
+                            'maxSize'          => '15M',
+                            'mimeTypes'        => ['image/jpeg', 'image/png', 'image/webp'],
+                            'mimeTypesMessage' => 'Please upload a valid image (JPEG, PNG, or WebP).',
+                        ]),
+                    ]),
+                ],
             ])
         ;
     }

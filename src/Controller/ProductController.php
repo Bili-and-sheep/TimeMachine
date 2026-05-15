@@ -4,13 +4,16 @@ namespace App\Controller;
 
 use App\Entity\ModificationHistory;
 use App\Entity\Product;
+use App\Entity\ProductImage;
 use App\Entity\User;
 use App\Enum\ModificationAction;
 use App\Enum\SubmissionStatus;
 use App\Form\ProductFormType;
 use App\Repository\ProductRepository;
+use App\Service\ImageUploadService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,7 +24,7 @@ final class ProductController extends AbstractController
 {
     #[Route('/new', name: 'app_product_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_USER')]
-    public function new(Request $request, EntityManagerInterface $em): Response
+    public function new(Request $request, EntityManagerInterface $em, ImageUploadService $imageUploadService): Response
     {
         $product = new Product();
         $form = $this->createForm(ProductFormType::class, $product);
@@ -33,8 +36,15 @@ final class ProductController extends AbstractController
             $product->setModifiedByUser($user);
             $em->persist($product);
 
-            $em->persist(new ModificationHistory($product, $user, ModificationAction::Created));
+            /** @var UploadedFile[] $imageFiles */
+            $imageFiles = $form->get('imageFiles')->getData();
+            foreach ($imageFiles as $imageFile) {
+                $image = new ProductImage();
+                $image->setPath($imageUploadService->upload($imageFile));
+                $product->addImage($image);
+            }
 
+            $em->persist(new ModificationHistory($product, $user, ModificationAction::Created));
 
             $em->flush();
 
@@ -64,7 +74,7 @@ final class ProductController extends AbstractController
 
     #[Route('/{id}/edit', name: 'app_product_edit', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_BARISTA')]
-    public function edit(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em): Response
+    public function edit(int $id, Request $request, ProductRepository $productRepository, EntityManagerInterface $em, ImageUploadService $imageUploadService): Response
     {
         $product = $productRepository->find($id);
 
@@ -79,6 +89,15 @@ final class ProductController extends AbstractController
             /** @var User $user */
             $user = $this->getUser();
             $product->setModifiedByUser($user);
+
+            /** @var UploadedFile[] $imageFiles */
+            $imageFiles = $form->get('imageFiles')->getData();
+            foreach ($imageFiles as $imageFile) {
+                $image = new ProductImage();
+                $image->setPath($imageUploadService->upload($imageFile));
+                $product->addImage($image);
+            }
+
             $em->persist(new ModificationHistory($product, $user, ModificationAction::Edited));
             $em->flush();
 

@@ -1,30 +1,44 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}User{% endblock %}
+{% block title %}User #{{ user.id }}{% endblock %}
 
 {% block body %}
-    <h1>User</h1>
+<div class="max-w-[640px] mx-auto px-5 py-12">
+    <div class="mb-8">
+        <a href="{{ path('app_user_index') }}"
+           class="text-xs text-apple-gray hover:text-apple-dark transition-colors">← Back to users</a>
+        <h1 class="text-3xl font-semibold text-apple-dark mt-3">User #{{ user.id }}</h1>
+    </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ user.id }}</td>
-            </tr>
-            <tr>
-                <th>Uuid</th>
-                <td>{{ user.uuid }}</td>
-            </tr>
-            <tr>
-                <th>Roles</th>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="border border-apple-border rounded-xl overflow-hidden mb-6">
+        <dl class="divide-y divide-apple-border">
+            <div class="flex items-center px-5 py-4">
+                <dt class="w-28 text-xs font-medium text-apple-gray uppercase tracking-wider shrink-0">ID</dt>
+                <dd class="text-sm text-apple-dark font-mono">{{ user.id }}</dd>
+            </div>
+            <div class="flex items-center px-5 py-4">
+                <dt class="w-28 text-xs font-medium text-apple-gray uppercase tracking-wider shrink-0">UUID</dt>
+                <dd class="text-sm text-apple-dark font-mono break-all">{{ user.uuid }}</dd>
+            </div>
+            <div class="flex items-center px-5 py-4">
+                <dt class="w-28 text-xs font-medium text-apple-gray uppercase tracking-wider shrink-0">Roles</dt>
+                <dd class="text-sm text-apple-dark">
+                    {% for role in user.roles %}
+                        <span class="inline-block bg-apple-light border border-apple-border text-apple-gray text-xs rounded-full px-3 py-0.5 mr-1">{{ role }}</span>
+                    {% else %}
+                        <span class="text-apple-gray">—</span>
+                    {% endfor %}
+                </dd>
+            </div>
+        </dl>
+    </div>
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
-
-    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
-
-    {{ include('user/_delete_form.html.twig') }}
+    <div class="flex items-center justify-between">
+        <a href="{{ path('app_user_edit', {'id': user.id}) }}"
+           class="text-sm bg-apple-dark text-white px-4 py-2 rounded-full hover:bg-black transition-colors">
+            Edit
+        </a>
+        {{ include('user/_delete_form.html.twig') }}
+    </div>
+</div>
 {% endblock %}

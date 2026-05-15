@@ -3,9 +3,15 @@
 {% block title %}New User{% endblock %}
 
 {% block body %}
-    <h1>Create new User</h1>
+<div class="max-w-[640px] mx-auto px-5 py-12">
+    <div class="mb-8">
+        <a href="{{ path('app_user_index') }}"
+           class="text-xs text-apple-gray hover:text-apple-dark transition-colors">← Back to users</a>
+        <h1 class="text-3xl font-semibold text-apple-dark mt-3">New User</h1>
+    </div>
 
-    {{ include('user/_form.html.twig') }}
-
-    <a href="{{ path('app_user_index') }}">back to list</a>
+    <div class="border border-apple-border rounded-xl p-6 bg-white">
+        {{ include('user/_form.html.twig') }}
+    </div>
+</div>
 {% endblock %}
