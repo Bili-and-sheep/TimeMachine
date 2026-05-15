@@ -179,19 +179,6 @@ class Product
         return $this;
     }
 
-    public function getInflationAdjustedPrice(): ?int
-    {
-        if ($this->originalPrice === null || $this->releaseDate === null) {
-            return null;
-        }
-
-        $releaseYear = (int) $this->releaseDate->format('Y');
-        $currentYear = (int) (new \DateTimeImmutable())->format('Y');
-        $years       = max(0, $currentYear - $releaseYear);
-
-        return (int) round($this->originalPrice * (1.03 ** $years));
-    }
-
     public function getSources(): ?string
     {
         return $this->sources;

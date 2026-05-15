@@ -66,11 +66,15 @@
         <div class="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] min-h-[520px]">
 
             {# ── LEFT: product image ── #}
-            <div class="relative bg-[#f5f5f7] flex items-center justify-center px-10 py-14 min-h-[420px]">
+            <div class="relative bg-[#f5f5f7] flex items-center justify-center px-10 py-14 min-h-[420px]"
+                 {% if product.images|length > 1 %}data-controller="image-carousel"{% endif %}>
                 {% if product.images is not empty %}
-                    <img src="{{ product.images.first.path }}"
-                         alt="{{ product.productName }}"
-                         class="max-w-full max-h-[460px] object-contain">
+                    {% for image in product.images %}
+                        <img src="{{ image.path }}"
+                             alt="{{ product.productName }}"
+                             {% if product.images|length > 1 %}data-image-carousel-target="slide"{% endif %}
+                             class="max-w-full max-h-[460px] object-contain{% if not loop.first %} hidden{% endif %}">
+                    {% endfor %}
                 {% else %}
                     <div class="w-52 h-52 bg-apple-border/40 rounded-3xl flex items-center justify-center text-apple-gray text-sm">
                         No image
@@ -79,6 +83,11 @@
 
                 {% if product.images|length > 1 %}
                     <button type="button"
+                            data-action="click->image-carousel#prev"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-apple-dark text-lg hover:scale-105 transition-transform"
+                            aria-label="Previous image">‹</button>
+                    <button type="button"
+                            data-action="click->image-carousel#next"
                             class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-apple-dark text-lg hover:scale-105 transition-transform"
                             aria-label="Next image">›</button>
                 {% endif %}
