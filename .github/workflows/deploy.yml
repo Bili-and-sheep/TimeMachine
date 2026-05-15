@@ -15,8 +15,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            set -e
             cd /var/www/timemachine
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
             APP_ENV=prod composer install --no-dev --optimize-autoloader
             APP_ENV=prod php bin/console cache:clear
             APP_ENV=prod php bin/console cache:warmup
