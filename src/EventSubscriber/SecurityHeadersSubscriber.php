@@ -14,6 +14,16 @@ class SecurityHeadersSubscriber implements EventSubscriberInterface
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        $response->headers->set(
+            'Content-Security-Policy',
+            "default-src 'self'; " .
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " .
+            "style-src 'self' 'unsafe-inline'; " .
+            "img-src 'self' data: https:; " .
+            "font-src 'self'; " .
+            "frame-ancestors 'none'"
+        );
     }
 
     public static function getSubscribedEvents(): array
