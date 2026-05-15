@@ -1,934 +1,347 @@
 # Rapport d'évaluation simulée — Apple Time Machine
-**Cours :** Infrastructure et Programmation Web — Bachelor 3 Oteria  
-**Date du rapport :** 2026-05-13  
-**Outil :** Simulateur d'évaluation (≠ note officielle de l'enseignant)
 
-> ⚠️ Ce document est produit par un **simulateur**, pas par l'enseignant qui notera réellement le projet. La note réelle peut diverger à la hausse ou à la baisse selon la démo en live, les Q&R, et la lecture humaine du code. L'objectif est d'identifier les chantiers prioritaires avant le rendu.
-
----
-
-## Sommaire
-
-1. [Scores par critère](#scores-par-critère)
-2. [Récapitulatif](#récapitulatif)
-3. [Plan de remédiation — atteindre le score maximum](#plan-de-remédiation)
-
----
-
-## Scores par critère
-
-### 1. Cadrage & conception — 7 / 15
-
-#### Spécifications fonctionnelles `4 / 8`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | `README.md` lignes 15–55 — sections "Features", "Product Pages", "Community", "Admin Panel" listées avec détail |
-| **Manque** | Aucun parcours utilisateur formalisé, aucun MVP explicitement défini, aucune user story |
-
-#### Architecture proposée `3 / 7`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | `README.md` lignes 59–65 — Symfony justifié en 1 paragraphe. Section "Tech Stack" présente |
-| **Manque** | Aucun schéma des composants (ni Mermaid, ni image, ni ASCII art). PostgreSQL, Tailwind, Doctrine, Stimulus non justifiés |
-
----
-
-### 2. Frontend — 15 / 25
-
-#### Structure HTML/CSS/JS `4 / 8`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | `templates/base.html.twig` — héritage Twig, blocks. Tailwind v4 avec tokens Apple (`app.css:4-9`). Partials `user/_form.html.twig`, `user/_delete_form.html.twig` |
-| **Manque** | Pas de macros Twig ni de composants UX. JS client = `console.log` uniquement (`assets/app.js:7`). La page profil (`mydrilla.html.twig`) mélange Tailwind v3/v4, a un `<div>` non fermé et du code commenté |
-
-#### Fonctionnalités clés `6 / 12` → `10 / 12` ✅ R10
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire → Avancé |
-| **Fonctionne** | Browse par catégorie (`BrowseController.php`), page produit complète (`product/show.html.twig`), soumission (`ProductController.php:23`), workflow review approve/reject (`ReviewController.php:63-148`) |
-| **✅ R10** | **Recherche** : `SearchController.php` + `ProductRepository::search()` + `templates/search/index.html.twig` + input dans la nav |
-| **Absent** | **Accueil** : `HomeController.php:18` → `findLastApproved()` = 1 seul produit. README promet "featured AND recently added products" |
-| **Absent** | **Upload d'image** : `ProductFormType.php` — aucun champ image dans le formulaire de soumission |
-
-#### UX & cohérence visuelle `5 / 5`
-
-| | |
-|---|---|
-| **Niveau** | Maximum |
-| **Preuve** | Design system Apple cohérent (tokens CSS `app.css:4-8`), `meta viewport` présent, classes responsive partout (`md:`, `lg:`, `sm:`), nav sticky + footer + flash messages uniformes |
-
----
-
-### 3. Backend — 25 / 30
-
-#### API / endpoints `12 / 12`
-
-| | |
-|---|---|
-| **Niveau** | Maximum |
-| **Preuve** | Tous les cas d'usage couverts : `GET /`, `/browse/{c}`, `/product/new`, `/product/{id}`, `/product/{id}/edit`, `/product/{id}/delete`, `/product/{id}/history`, `/review/*`, `/user/*`, `/login`, `/logout`, `/register`, `/mydrilla` |
-
-#### Logique métier `8 / 8`
-
-| | |
-|---|---|
-| **Niveau** | Maximum |
-| **Preuve** | Prix inflation (`Product.php:153-162`), workflow 2 niveaux (`ReviewController.php:73-78`), hiérarchie de rôles (`security.yaml:40-43`), historique d'audit (`ModificationHistory`), compteur pending global (`AppExtension.php:13`) |
-
-#### Validation des entrées `3 / 6`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | `ProductFormType.php` — `TextType`, `IntegerType`, `DateType`, `EntityType`. Validation manuelle du commentaire (`ReviewController.php:92`) |
-| **Manque** | Aucune contrainte `#[Assert\*]` sur les entités ou FormTypes. Un prix négatif est accepté. Aucune longueur minimale sur le nom du produit |
-
-#### Gestion des erreurs `2 / 4`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | `createNotFoundException()` dans tous les controllers. Flash messages success/error. Codes HTTP via exceptions Symfony (404, 403) |
-| **Manque** | Pas de templates d'erreur custom (`templates/bundles/TwigBundle/Exception/` absent). Pas de `EventSubscriber` global |
-
----
-
-### 4. Base de données — 10 / 15
-
-#### Modélisation `3 / 7`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | 7 entités cohérentes avec relations ManyToOne/OneToMany/ManyToMany. `UniqueConstraint` sur `User.uuid` (`User.php:12-13`) |
-| **Manque** | Dossier `migrations/` vide (seulement `.gitignore`). Pas d'index explicite sur `status`, `ProductType`. Schéma non reproductible proprement |
-
-#### Accès aux données `6 / 6`
-
-| | |
-|---|---|
-| **Niveau** | Maximum |
-| **Preuve** | Doctrine QueryBuilder avec `setParameter()` systématique (`ProductRepository.php:20, 29`). Aucune concaténation SQL trouvée |
-
-#### Seed `1 / 2`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | `PopulateOperatingSystemCommand.php` (200+ versions OS), `PopulateProductTypeCommand.php` (18 catégories) |
-| **Manque** | Aucun seed de produits. Sur installation fraîche : archive vide, impossible de tester les fonctionnalités clés sans ajouter soi-même des produits |
-
----
-
-### 5. Sécurité — 12 / 25
-
-#### Authentification `3 / 6`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Preuve** | `UuidAuthenticator.php:44` — `hash('sha256', $uuid)`. `SelfValidatingPassport` + `CsrfTokenBadge` (ligne 57) + `RememberMeBadge`. Approche Mullvad-like |
-| **Manque** | SHA256 n'est pas un algorithme de hachage de mot de passe (pas de salt, pas de cost factor — bcrypt/argon2 attendus). La page profil ne permet pas de retrouver son UUID après connexion (code commenté dans `mydrilla.html.twig`) |
-
-#### Autorisation `5 / 5`
-
-| | |
-|---|---|
-| **Niveau** | Maximum |
-| **Preuve** | `#[IsGranted]` sur toutes les routes sensibles. Hiérarchie `security.yaml:40-43`. Pas d'IDOR identifié (éditions réservées à `ROLE_BARISTA`) |
-
-#### Protection OWASP `4 / 9`
-
-| Protection | Statut | Preuve |
-|---|---|---|
-| XSS | ✅ | Twig auto-escape par défaut, aucun filtre `\|raw` dans les templates |
-| SQLi | ✅ | Doctrine QueryBuilder + `setParameter()` partout |
-| CSRF | ❌ | Formulaires approve/reject/request-modification dans `review/show.html.twig` **sans token CSRF**. `ReviewController.php` ne valide aucun token |
-| Headers sécurité | ❌ | Aucun middleware de security headers (grep `CSP\|HSTS\|helmet` → 0 résultat) |
-
-Score : 2/4 protections → palier intermédiaire (4 XP)
-
-#### Gestion des secrets `0 / 5` 🚨
-
-| | |
-|---|---|
-| **Niveau** | **ZÉRO — SECRET COMMITÉ** |
-| **Preuve** | `git ls-files .env .env.dev` → les deux fichiers sont trackés. `.env:40` et `.env.dev:1` contiennent `APP_SECRET=<SECRET_REMOVED>` en clair |
-| **Règle** | 1 secret en clair dans le repo = 0 XP sur ce critère, sans exception |
-
----
-
-### 6. Déploiement & infrastructure — 0 / 15
-
-#### Application accessible en ligne `0 / 5`
-
-Aucune URL dans le README, aucune config d'hébergement dans le repo.
-
-#### Domaine + TLS + reverse proxy `0 / 6`
-
-`compose.yaml` en configuration locale uniquement. Aucun Dockerfile, aucun Nginx/Caddy.
-
-#### Pipeline CI/CD `0 / 4`
-
-Aucun `.github/workflows/`, `.gitlab-ci.yml`, `Makefile` ou `deploy.sh`.
-
----
-
-### 7. Qualité du code & documentation — 15 / 25
-
-#### Lisibilité & organisation `7 / 13`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Correct** | Séparation Controller / Repository / Entity / Form / Enum / Twig / Security ✓. Aucun fichier > 1000 lignes (max : `Product.php` 351l) ✓ |
-| **Violation** | Propriétés d'entité en **PascalCase** au lieu de camelCase PHP : `Product.php:14` → `$ProductName`, `$TechnicalName`, `$ReleaseDate`… Violation PSR-1 |
-
-Règle : 1 critère manqué sur 3 → palier intermédiaire (7 XP)
-
-#### README `3 / 7`
-
-| Section | Présent |
-|---|---|
-| Description du projet | ✅ |
-| Fonctionnalités | ✅ |
-| Choix techniques justifiés | ✅ (Symfony uniquement) |
-| Installation locale | ❌ |
-| Variables d'environnement | ❌ |
-
-Note : `README.md:106` — "Thanks Claude.IA for this nice readme" → l'enseignant peut poser des questions en soutenance sur la compréhension du projet.
-
-#### Historique Git `5 / 5`
-
-| | |
-|---|---|
-| **Niveau** | Maximum |
-| **Preuve** | 44 commits. 10 feature branches (`feat/auth`, `feat/entities`, `feat/product-workflow`…). Messages précis et descriptifs. Merge commits propres |
-
----
-
-### 8. Ambition technique — 7 / 10
-
-#### Difficulté & richesse `3 / 6`
-
-| | |
-|---|---|
-| **Niveau** | Intermédiaire |
-| **Au-delà du CRUD** | Workflow validation 2 niveaux (6 états `SubmissionStatus`), calcul prix inflation, auth UUID-only, historique d'audit |
-| **Manque** | Pas d'API externe (l'inflation est 3% fixe, pas une vraie API INSEE/BLS), pas de temps réel, pas de traitement asynchrone |
-
-#### Originalité `4 / 4`
-
-| | |
-|---|---|
-| **Niveau** | Maximum |
-| **Preuve** | Concept d'archive communautaire Apple discontinués = niche précise. Recréation Apple Store 2017. Auth UUID-only inspirée de Mullvad |
+> **Simulateur basé sur la grille officielle du cours « Infrastructure et Programmation Web » — Bachelor 3 Oteria.**
+> Ce rapport n'est pas la note officielle. La note réelle peut diverger selon la démo en direct et les Q&R.
+>
+> Date de simulation : 2026-05-14
 
 ---
 
 ## Récapitulatif
 
 ```
-═══════════════════════════════════════════════════════════════
-RÉCAPITULATIF — APPLE TIME MACHINE  (après R1–R10 — toutes remédiations appliquées)
-═══════════════════════════════════════════════════════════════
+═══════════════════════════════════════════════════
+  1. Cadrage & conception                   15 / 15
+  2. Frontend                               25 / 25
+  3. Backend                                27 / 30
+  4. Base de données                        15 / 15
+  5. Sécurité                               17 / 25
+  6. Déploiement & infrastructure           15 / 15
+  7. Qualité du code & documentation        25 / 25
+  8. Ambition technique du projet           10 / 10
 
-  1. Cadrage & conception                  15  / 15  ✅ R2 + R7
-  2. Frontend                              21  / 25  ✅ R10 (recherche)
-  3. Backend                               25  / 30
-  4. Base de données                       15  / 15  ✅ R4 + R9
-  5. Sécurité                              22  / 25  ✅ R1 + R6
-  6. Déploiement & infrastructure          15  / 15  ✅ R5 + R5b
-  7. Qualité du code & documentation       25  / 25  ✅ R3 + R8
-  8. Ambition technique du projet           7  / 10
+  PÉNALITÉS                                  - 0 XP
 
-PÉNALITÉS
-  Retard                             À confirmer (date de rendu ?)
-  Plagiat                             0  (style homogène, code cohérent)
-
-SCORE FINAL ESTIMÉ                       145  / 160 XP
-═══════════════════════════════════════════════════════════════
+  ESTIMATION                               149 / 160 XP
+═══════════════════════════════════════════════════
 ```
+
+**Points laissés sur la table : 11 XP**
+- Backend 3.3 — Validation : −3 XP
+- Sécurité 5.1 — Authentification : −3 XP
+- Sécurité 5.3 — OWASP : −5 XP
 
 ---
 
-## Plan de remédiation
+## Détail par bloc
 
-> Objectif : passer de **91 → 155+ / 160 XP**.  
-> Classé par ratio **gain XP / effort** décroissant.
+### Bloc 1 — Cadrage & conception — 15 / 15
 
----
-
-### R1 ✅ DONE — Retirer les secrets committés `+5 XP`
-
-**Problème :** `APP_SECRET` en clair dans `.env` et `.env.dev` (tous deux trackés).
-
-```bash
-# 1. Supprimer du tracking (sans effacer les fichiers locaux)
-git rm --cached .env .env.dev
-
-# 2. Ajouter au .gitignore
-echo ".env" >> .gitignore
-echo ".env.dev" >> .gitignore
-
-# 3. Régénérer un nouveau secret (l'actuel est compromis)
-#    Dans .env.local (NON commité) :
-APP_SECRET=<nouvelle_valeur_générée>
-
-# 4. Documenter dans le README les variables à configurer (voir R3)
-
-# 5. Commiter
-git add .gitignore
-git commit -m "Remove committed secrets: untrack .env and .env.dev"
-```
-
-> ⚠️ Le secret actuel (`<SECRET_REMOVED>`) reste dans l'historique git. Pour une vraie production, il faudrait purger l'historique (`git filter-repo`) ou invalider le secret côté serveur.
-
-**Gain :** 0 → 5 XP (critère "Gestion des secrets")
-
----
-
-### R2 ✅ DONE — Ajouter un schéma d'architecture dans le README `+4 XP`
-
-**Problème :** le README décrit les fonctionnalités mais aucun schéma des composants.
-
-Ajouter cette section dans `README.md` après "Tech Stack" :
-
-````markdown
-## 🏗️ Architecture
-
-```mermaid
-graph TD
-    Browser["🌐 Navigateur"]
-
-    subgraph Symfony["Symfony 8 (PHP 8.4)"]
-        direction TB
-        Controller["Controllers\n(ProductController, ReviewController…)"]
-        Form["Form Types\n(ProductFormType)"]
-        Security["Security\n(UuidAuthenticator)"]
-        Twig["Templates Twig\n(Tailwind v4)"]
-        Repository["Repositories\n(Doctrine ORM)"]
-        Command["Console Commands\n(Seed OS / ProductType)"]
-    end
-
-    DB[("PostgreSQL 16")]
-    Mail["Mailpit (dev)"]
-
-    Browser -->|"HTTP / Sessions"| Security
-    Security --> Controller
-    Controller --> Form
-    Controller --> Repository
-    Controller --> Twig
-    Repository -->|"QueryBuilder"| DB
-    Controller -->|"Mailer"| Mail
-
-    subgraph Rôles
-        direction LR
-        U["ROLE_USER"] --> R["ROLE_REVIEWER"]
-        R --> B["ROLE_BARISTA"]
-        B --> A["ROLE_ADMIN"]
-    end
-
-    subgraph "Workflow Soumission"
-        direction LR
-        P["Pending"] --> AR["ApprovedByReview"]
-        AR --> AP["Approved ✓"]
-        P --> RR["RejectedByReview"]
-        P --> NC["NeedsChanges"]
-    end
-```
-
-**Justifications techniques :**
-- **Symfony 8** : framework maîtrisé, permet d'aller directement au cœur du projet (contenu, design) sans friction d'apprentissage.
-- **PostgreSQL 16** : robustesse relationnelle, support JSON natif pour le champ `options` des produits.
-- **Doctrine ORM** : mapping entité-table type-safe, QueryBuilder paramétré (protection SQLi native).
-- **Tailwind v4** : utility-first CSS avec tokens de design Apple personnalisés, responsive sans JavaScript.
-- **Symfony UX / Stimulus** : progressive enhancement, Turbo pour les transitions de page sans rechargement complet.
-````
-
-**Gain :** 3 → 7 XP (critère "Architecture proposée")
-
----
-
-### R3 ✅ DONE — Compléter le README avec installation + env vars `+4 XP`
-
-**Problème :** aucune section d'installation locale, aucune documentation des variables d'environnement.
-
-Ajouter dans `README.md` :
-
-````markdown
-## 🚀 Installation locale
-
-### Prérequis
-- PHP 8.4+
-- Composer
-- Docker (pour PostgreSQL) ou PostgreSQL 16 installé localement
-- Node.js (pour Tailwind, optionnel — le CSS compilé est inclus)
-
-### Étapes
-
-```bash
-# 1. Cloner le repo
-git clone <url-du-repo>
-cd TimeMachine
-
-# 2. Installer les dépendances PHP
-composer install
-
-# 3. Configurer l'environnement
-cp .env .env.local
-# Éditer .env.local avec vos valeurs (voir section Variables ci-dessous)
-
-# 4. Démarrer la base de données (Docker)
-docker compose up -d
-
-# 5. Créer le schéma
-php bin/console doctrine:migrations:migrate
-# ou sur installation fraîche :
-php bin/console doctrine:schema:create
-
-# 6. Peupler les données de référence
-php bin/console app:populate-os
-php bin/console app:populate-product-type
-
-# 7. Lancer le serveur
-symfony serve
-# → http://localhost:8000
-```
-
-## ⚙️ Variables d'environnement
-
-| Variable | Exemple | Description |
+| Critère | XP | Niveau |
 |---|---|---|
-| `APP_ENV` | `dev` | Environnement (`dev`, `prod`, `test`) |
-| `APP_SECRET` | `<random_32_chars>` | Clé secrète Symfony (sessions, CSRF) — **ne jamais commiter** |
-| `DATABASE_URL` | `postgresql://app:password@127.0.0.1:5432/app?serverVersion=16` | DSN PostgreSQL |
-| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Transport pour les messages asynchrones |
-| `MAILER_DSN` | `null://null` (dev) | Configuration SMTP |
+| Spécifications fonctionnelles | 8 / 8 | Max |
+| Architecture proposée | 7 / 7 | Max |
 
-### Compte de démo (après seed)
+**1.1 Spécifications fonctionnelles — 8/8**
+- Preuve : `README.md:113–148` — MVP status table (10 features ✅), user journeys pour 4 rôles (User, Reviewer, Barista, Admin)
 
-Créer un compte via `/register` → noter le UUID affiché une seule fois → se connecter via `/login`.
-
-Pour obtenir les droits admin, mettre à jour directement en base :
-```sql
-UPDATE "user" SET roles = '["ROLE_ADMIN"]' WHERE id = 1;
-```
-````
-
-**Gain :** 3 → 7 XP (critère "README qualité")
+**1.2 Architecture — 7/7**
+- Preuve : `README.md:75–109` — Mermaid diagram (Browser → Security → Controller → Repository → DB), sous-diagrammes rôles + workflow, paragraphes de justification par techno
 
 ---
 
-### R4 ✅ DONE — Générer les migrations Doctrine `+4 XP`
+### Bloc 2 — Frontend — 25 / 25
 
-**Problème :** dossier `migrations/` vide — le schéma n'est pas versionné.
+| Critère | XP | Niveau |
+|---|---|---|
+| Structure HTML/CSS/JS | 8 / 8 | Max |
+| Fonctionnalités clés | 12 / 12 | Max |
+| UX & cohérence visuelle | 5 / 5 | Max |
 
-```bash
-# Générer la migration depuis l'état actuel des entités
-php bin/console doctrine:migrations:diff
+**2.1 Structure — 8/8**
+- Héritage Twig (`base.html.twig` + templates enfants), Tailwind v4, Stimulus controllers, Turbo pour transitions sans rechargement
 
-# Vérifier le fichier généré dans migrations/
-# Commiter
-git add migrations/
-git commit -m "Add initial Doctrine migration from entity schema"
-```
+**2.2 Fonctionnalités — 12/12**
+- Browse par catégorie, recherche full-text, soumission produit, inscription/login UUID, workflow review, prix inflation-adjusted, badge cloche (pending count)
 
-Optionnel mais recommandé : ajouter des index sur les colonnes filtrées fréquemment.  
-Dans `Product.php` :
+**2.3 UX & responsive — 5/5**
+- Preuve responsive : `templates/product/show.html.twig:29,66,88,238,285` (`md:`, `lg:`, `sm:` breakpoints Tailwind)
+- Redirect HTTP→HTTPS 301 confirmé, design Apple 2017 cohérent
+
+---
+
+### Bloc 3 — Backend — 27 / 30
+
+| Critère | XP | Niveau |
+|---|---|---|
+| API / endpoints | 12 / 12 | Max |
+| Logique métier | 8 / 8 | Max |
+| Validation des entrées | **3 / 6** | **Intermédiaire** |
+| Gestion des erreurs | 4 / 4 | Max |
+
+**3.1 Endpoints — 12/12**
+- 9 controllers : Home, Browse (7 catégories), Search, Product (CRUD), Review (5 actions), Security, Registration, User (CRUD), History
+
+**3.2 Logique métier — 8/8**
+- Machine à états 6 statuts, calcul inflation (compound interest), hiérarchie 4 rôles, audit trail automatique, authenticateur UUID custom
+
+**3.3 Validation — 3/6** ⚠️ −3 XP
+- `$form->isSubmitted() && $form->isValid()` présent partout ✅
+- Validation implicite via types de champs (IntegerType, EntityType…) ✅
+- **Manquant : zéro contrainte `#[Assert\...]` explicite sur les entités**
+- `grep -rn "Assert\\" src/` → aucun résultat
+- Un produit peut être soumis avec `originalPrice = -999` sans erreur Symfony
+
+**3.4 Erreurs — 4/4**
+- `createNotFoundException()`, `createAccessDeniedException()`, flash messages, CSRF invalide → 403 explicite
+
+#### Remédiation 3.3 — +3 XP
+
+Ajouter les contraintes Assert sur `src/Entity/Product.php` :
 
 ```php
-#[ORM\Entity(repositoryClass: ProductRepository::class)]
-#[ORM\Index(fields: ['status'], name: 'idx_product_status')]
-class Product
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[Assert\NotBlank(message: 'Product name is required.')]
+#[Assert\Length(max: 255)]
+private ?string $productName = null;
+
+#[Assert\NotBlank(message: 'Technical name is required.')]
+#[Assert\Length(max: 255)]
+private ?string $technicalName = null;
+
+#[Assert\NotNull(message: 'Price is required.')]
+#[Assert\Positive(message: 'Price must be a positive integer.')]
+private ?int $originalPrice = null;
 ```
 
-**Gain :** modélisation BDD 3 → 7 XP (critère "Modélisation")
-
----
-
-### R5 ✅ DONE — Self-host sur `timemachine.eliottandre.com` (Debian + Apache + Let's Encrypt) `+15 XP`
-
-**Architecture cible :**
-```
-Internet → timemachine.eliottandre.com (serveur app)
-               Apache + PHP 8.4-FPM
-                    ↓ port 5432 (réseau privé uniquement)
-           Serveur DB séparé → PostgreSQL 16
-```
-
----
-
-#### Étape 1 — Serveur DB : installer et exposer PostgreSQL
-
-Sur le **serveur DB** :
-
-```bash
-sudo apt update && sudo apt install -y postgresql postgresql-contrib
-
-# Créer l'utilisateur et la base
-sudo -u postgres psql -c "CREATE USER timemachine WITH PASSWORD 'MOT_DE_PASSE_FORT';"
-sudo -u postgres psql -c "CREATE DATABASE timemachine OWNER timemachine;"
-
-# Autoriser les connexions distantes depuis le serveur app uniquement
-# Remplacer IP_SERVEUR_APP par l'IP privée du serveur applicatif
-echo "host timemachine timemachine IP_SERVEUR_APP/32 scram-sha-256" \
-    | sudo tee -a /etc/postgresql/16/main/pg_hba.conf
-
-# Écouter sur toutes les interfaces (ou juste l'IP privée)
-sudo sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/" \
-    /etc/postgresql/16/main/postgresql.conf
-
-sudo systemctl restart postgresql
-
-# Pare-feu : port 5432 ouvert seulement depuis le serveur app
-sudo ufw allow from IP_SERVEUR_APP to any port 5432
-```
-
----
-
-#### Étape 2 — Serveur app : installer PHP 8.4, Apache, Certbot
-
-Sur le **serveur app** :
-
-```bash
-sudo apt update
-sudo apt install -y lsb-release ca-certificates curl
-sudo curl -sSo /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
-echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" \
-    | sudo tee /etc/apt/sources.list.d/php.list
-sudo apt update
-sudo apt install -y php8.4-fpm php8.4-pgsql php8.4-intl php8.4-xml \
-    php8.4-curl php8.4-mbstring php8.4-zip php8.4-opcache
-
-sudo apt install -y apache2 certbot python3-certbot-apache
-
-# Modules Apache requis pour Symfony
-sudo a2enmod proxy_fcgi setenvif rewrite headers ssl
-sudo a2enconf php8.4-fpm
-
-# Composer
-curl -sS https://getcomposer.org/installer | php
-sudo mv composer.phar /usr/local/bin/composer
-```
-
----
-
-#### Étape 3 — Déployer le code
-
-**3a. Clé SSH pour GitHub (deploy key)**
-
-```bash
-# Générer une clé SSH dédiée au serveur
-ssh-keygen -t ed25519 -C "timemachine-prod" -f ~/.ssh/id_ed25519 -N ""
-
-# Afficher la clé publique à copier
-cat ~/.ssh/id_ed25519.pub
-```
-
-Sur GitHub : **Repo → Settings → Deploy keys → Add deploy key**
-- Title : `prod-server`
-- Key : coller l'output de la commande précédente
-- Allow write access : **non** (lecture seule suffit)
-
-```bash
-# Vérifier que la connexion fonctionne
-ssh -T git@github.com
-# → Hi Bili-and-sheep! You've successfully authenticated...
-```
-
-**3b. Cloner et installer**
-
-```bash
-sudo mkdir -p /var/www/timemachine
-sudo chown timemachine:www-data /var/www/timemachine
-
-git clone git@github.com:Bili-and-sheep/TimeMachine.git /var/www/timemachine
-cd /var/www/timemachine
-
-APP_ENV=prod composer install --no-dev --optimize-autoloader
-```
-
-Créer `/var/www/timemachine/.env.local` :
-
-```dotenv
-APP_ENV=prod
-APP_SECRET=<php -r "echo bin2hex(random_bytes(16));">
-DATABASE_URL="postgresql://timemachine:MOT_DE_PASSE_FORT@IP_SERVEUR_DB:5432/timemachine?serverVersion=16&charset=utf8"
-MAILER_DSN=null://null
-```
-
-```bash
-APP_ENV=prod php8.4 bin/console doctrine:schema:create
-APP_ENV=prod php8.4 bin/console app:populate-os
-APP_ENV=prod php8.4 bin/console app:populate-product-type
-APP_ENV=prod php8.4 bin/console cache:clear
-APP_ENV=prod php8.4 bin/console cache:warmup
-
-sudo chown -R timemachine:www-data var/
-sudo chmod -R 775 var/
-```
-
----
-
-#### Étape 4 — Configurer Apache
-
-Créer `/etc/apache2/sites-available/timemachine.conf` :
-
-```apache
-<VirtualHost *:80>
-    ServerName timemachine.eliottandre.com
-    DocumentRoot /var/www/timemachine/public
-
-    <Directory /var/www/timemachine/public>
-        AllowOverride None
-        Require all granted
-        FallbackResource /index.php
-    </Directory>
-
-    <FilesMatch \.php$>
-        SetHandler "proxy:unix:/run/php/php8.4-fpm.sock|fcgi://localhost"
-    </FilesMatch>
-
-    <IfModule mod_headers.c>
-        Header always set X-Content-Type-Options "nosniff"
-        Header always set X-Frame-Options "DENY"
-        Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    </IfModule>
-
-    ErrorLog ${APACHE_LOG_DIR}/timemachine_error.log
-    CustomLog ${APACHE_LOG_DIR}/timemachine_access.log combined
-</VirtualHost>
-```
-
-```bash
-sudo a2ensite timemachine.conf
-sudo a2dissite 000-default.conf
-sudo apache2ctl configtest && sudo systemctl reload apache2
-```
-
----
-
-#### Étape 5 — TLS avec Let's Encrypt
-
-> **Prérequis DNS :** le sous-domaine doit pointer sur l'IP publique du serveur app avant de lancer Certbot.
-> ```
-> timemachine.eliottandre.com.  A  IP_PUBLIQUE_SERVEUR_APP
-> ```
-
-```bash
-sudo certbot --apache -d timemachine.eliottandre.com
-sudo certbot renew --dry-run
-```
-
-Certbot ajoute automatiquement la redirection HTTP → HTTPS, le certificat SSL et le header `Strict-Transport-Security`.
-
----
-
-#### Étape 6 — Vérification
-
-```bash
-sudo systemctl status php8.4-fpm
-sudo systemctl status apache2
-curl -I https://timemachine.eliottandre.com
-# → HTTP/2 200
-```
-
----
-
-#### Étape 7 — Ajouter l'URL dans le README
-
-```markdown
-## 🌐 Application en ligne
-
-[https://timemachine.eliottandre.com](https://timemachine.eliottandre.com)
-```
-
----
-
-**Gain :**
-- Accessible en ligne : 0 → 5 XP
-- Domaine + TLS + reverse proxy Apache : 0 → 6 XP
-- **Total déploiement : 0 → 11 XP**
-
-> Les 4 XP restants (CI/CD) sont couverts par R5b ci-dessous.
-
----
-
-#### R5b ✅ DONE — CI/CD avec GitHub Actions `+4 XP`
-
-Le workflow `.github/workflows/deploy.yml` est déjà commité. À chaque `git push` sur `main`, GitHub Actions se connecte en SSH au serveur et exécute le déploiement automatiquement.
-
----
-
-**Étape 1 — Récupérer la clé privée SSH de `timemachine`**
-
-Sur le serveur app, en tant que `timemachine` :
-
-```bash
-# Afficher la clé privée à copier dans GitHub Secrets
-cat ~/.ssh/id_ed25519
-```
-
-Copier le contenu complet, en incluant les lignes `-----BEGIN OPENSSH PRIVATE KEY-----` et `-----END OPENSSH PRIVATE KEY-----`.
-
----
-
-**Étape 2 — Ajouter les 3 secrets dans GitHub**
-
-Aller sur : **GitHub → Repo → Settings → Secrets and variables → Actions → New repository secret**
-
-| Nom du secret | Valeur à coller |
-|---|---|
-| `SERVER_HOST` | IP publique du serveur app (ex: `51.x.x.x`) |
-| `SERVER_USER` | `timemachine` |
-| `SSH_PRIVATE_KEY` | Contenu complet du fichier `~/.ssh/id_ed25519` |
-
----
-
-**Étape 3 — Configurer sudoers sur le serveur**
-
-L'utilisateur `timemachine` doit pouvoir recharger PHP-FPM et Apache sans mot de passe. En tant que `debian` (ou root) :
-
-```bash
-echo "timemachine ALL=(ALL) NOPASSWD: /bin/systemctl reload php8.4-fpm, /bin/systemctl reload apache2" \
-    | sudo tee /etc/sudoers.d/timemachine
-sudo chmod 440 /etc/sudoers.d/timemachine
-
-# Vérifier la syntaxe (ne pas skipper)
-sudo visudo -c -f /etc/sudoers.d/timemachine
-```
-
----
-
-**Étape 4 — Tester le pipeline**
-
-```bash
-# Depuis la machine locale : forcer un déploiement sans changement de code
-git commit --allow-empty -m "ci: trigger deploy"
-git push
-```
-
-Suivre l'exécution dans **GitHub → Repo → Actions → Deploy to production**.
-
-Le job doit terminer en vert. En cas d'échec, les logs SSH sont visibles dans l'onglet du step "Deploy via SSH".
-
----
-
-**Étape 5 — Vérifier le déploiement**
-
-```bash
-# Depuis n'importe quelle machine
-curl -I https://timemachine.eliottandre.com
-# → HTTP/2 200
-```
-
----
-
-**Gain :** 0 → 4 XP → **déploiement 15/15 XP**
-
----
-
-### R6 ✅ DONE — Ajouter les tokens CSRF sur les formulaires review `+5 XP`
-
-**Problème :** les formulaires approve/reject/request-modification n'ont pas de protection CSRF.
-
-**Dans `templates/review/show.html.twig`**, ajouter dans chaque `<form>` :
-
-```twig
-{# Formulaire approve (ligne ~38) #}
-<form method="post" action="{{ path('app_review_approve', {id: product.id}) }}">
-    <input type="hidden" name="_token" value="{{ csrf_token('review_action_' ~ product.id) }}">
-    <button type="submit">…</button>
-</form>
-
-{# Pareil pour reject et request-modification #}
-```
-
-**Dans `ReviewController.php`**, valider le token dans chaque action :
+Et sur `src/Entity/User.php` (déjà géré par UniqueEntity, mais ajouter) :
 
 ```php
-public function approve(int $id, Request $request, …): Response
+#[Assert\NotBlank]
+#[Assert\Uuid]
+private ?string $uuid = null;
+```
+
+**Effort estimé : 20 minutes.**
+
+---
+
+### Bloc 4 — Base de données — 15 / 15
+
+| Critère | XP | Niveau |
+|---|---|---|
+| Modélisation | 7 / 7 | Max |
+| Accès aux données | 6 / 6 | Max |
+| Seed / données de démo | 2 / 2 | Max |
+
+**4.1 Modélisation — 7/7**
+- 8 tables, FK avec CASCADE, index métier `IDX_PRODUCT_STATUS`, JSON pour options
+
+**4.2 Accès — 6/6**
+- Doctrine QueryBuilder + `setParameter()` partout, aucune concaténation SQL
+
+**4.3 Seed — 2/2**
+- `PopulateProductCommand` (21 produits), `PopulateOperatingSystemCommand`, `PopulateProductTypeCommand`
+
+---
+
+### Bloc 5 — Sécurité — 17 / 25
+
+| Critère | XP | Niveau |
+|---|---|---|
+| Authentification | **3 / 6** | **Intermédiaire** |
+| Autorisation | 5 / 5 | Max |
+| Protection OWASP | **4 / 9** | **Intermédiaire** |
+| Gestion des secrets | 5 / 5 | Max |
+
+**5.1 Authentification — 3/6** ⚠️ −3 XP
+- Système passwordless UUID ✅, session Symfony ✅, CsrfTokenBadge sur login ✅
+- UUID stocké en SHA-256 : `User::setUuid():36` → `hash('sha256', $uuid)`
+- **Problème : SHA-256 est un hash rapide, pas un KDF (bcrypt/argon2)**
+- `password_hashers: 'auto'` déclaré dans `security.yaml` mais jamais invoqué
+- Bien que l'entropie d'un UUID v4 rende le brute-force impraticable, le critère attend un algorithme de dérivation de clé
+
+**5.2 Autorisation — 5/5**
+- `#[IsGranted]` sur tous les endpoints sensibles, hiérarchie de rôles complète, aucun IDOR trouvé
+
+**5.3 OWASP — 4/9** ⚠️ −5 XP
+| Check | Statut | Preuve |
+|---|---|---|
+| XSS | ✅ | Twig auto-échappe, aucun `\|raw` trouvé |
+| SQLi | ✅ | QueryBuilder + setParameter() |
+| CSRF | ✅ | `csrf.yaml` + `isCsrfTokenValid()` partout |
+| Headers | ⚠️ | 3/5 présents, CSP et HSTS manquants |
+
+Confirmé en prod : `curl -sI https://timemachine.eliottandre.com` retourne X-Content-Type-Options, X-Frame-Options, Referrer-Policy — mais **pas de Content-Security-Policy, pas de Strict-Transport-Security**.
+
+**5.4 Secrets — 5/5**
+- `.env.local` gitignore + non-tracké ✅, GitHub Actions utilise `${{ secrets.* }}` ✅, aucun secret réel dans les fichiers trackés ✅
+
+#### Remédiation 5.1 — +3 XP
+
+Remplacer SHA-256 par `password_hash()` avec BCRYPT, ou utiliser le `PasswordHasher` Symfony.
+
+Option A — rester "passwordless" mais utiliser le hasher Symfony dans `src/Entity/User.php` :
+
+```php
+// Implémenter PasswordAuthenticatedUserInterface
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    // Ajouter en début de méthode :
-    if (!$this->isCsrfTokenValid('review_action_' . $id, $request->request->get('_token'))) {
-        throw $this->createAccessDeniedException('Invalid CSRF token.');
-    }
-    // … suite du code
-}
-```
+    private ?string $password = null; // stocke le hash du UUID
 
-**Ajouter les headers de sécurité** via une réponse d'événement dans `src/EventSubscriber/SecurityHeadersSubscriber.php` :
+    public function getPassword(): ?string { return $this->password; }
 
-```php
-<?php
-namespace App\EventSubscriber;
-
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
-
-class SecurityHeadersSubscriber implements EventSubscriberInterface
-{
-    public function onKernelResponse(ResponseEvent $event): void
+    public function setUuid(string $uuid): static
     {
-        $response = $event->getResponse();
-        $response->headers->set('X-Content-Type-Options', 'nosniff');
-        $response->headers->set('X-Frame-Options', 'DENY');
-        $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [KernelEvents::RESPONSE => 'onKernelResponse'];
+        $this->uuid = $uuid; // stocker le UUID brut pour identifier
+        return $this;
     }
 }
 ```
 
-**Gain :** OWASP 4 → 9 XP (passage de 2/4 à 4/4 protections)
-
----
-
-### R7 ✅ DONE — Ajouter les spécifications fonctionnelles au README `+4 XP`
-
-**Problème :** pas de parcours utilisateur ni de MVP défini.
-
-Ajouter dans `README.md` :
-
-```markdown
-## 📋 Spécifications fonctionnelles
-
-### MVP (Minimum Viable Product)
-
-| Fonctionnalité | Statut |
-|---|---|
-| Inscription sans email (UUID anonyme) | ✅ |
-| Connexion par UUID | ✅ |
-| Soumission d'un produit Apple discontinué | ✅ |
-| Validation manuelle par un reviewer | ✅ |
-| Approbation finale par un barista | ✅ |
-| Affichage public des produits approuvés | ✅ |
-| Browse par catégorie (iPhone, Mac, iPad…) | ✅ |
-| Calcul du prix ajusté à l'inflation | ✅ |
-
-### Parcours utilisateurs
-
-**Contributeur (ROLE_USER)**
-1. Créer un compte → recevoir son UUID
-2. Se connecter avec son UUID
-3. Soumettre un produit (nom, date, prix, OS, options…)
-4. Le produit passe en statut "Pending"
-5. Attendre l'approbation d'un reviewer
-
-**Reviewer (ROLE_REVIEWER)**
-1. Voir la cloche de notification avec le nombre de soumissions en attente
-2. Consulter la fiche de chaque produit en attente
-3. Approuver (→ envoi en validation barista), rejeter, ou demander des modifications
-
-**Barista / Admin (ROLE_BARISTA)**
-1. Voir les produits approuvés par les reviewers
-2. Donner l'approbation finale → le produit devient public
-3. Éditer / supprimer tout produit existant
-4. Consulter l'historique des modifications
-```
-
-**Gain :** spécifications 4 → 8 XP
-
----
-
-### R8 ✅ DONE — Corriger la convention de nommage PHP `+6 XP`
-
-**Problème :** propriétés PascalCase dans `Product.php` (violation PSR-1).
-
-```bash
-# Renommer toutes les propriétés + getters/setters dans Product.php
-# $ProductName → $productName
-# $TechnicalName → $technicalName
-# etc.
-```
-
-Utiliser un refactor automatique dans l'IDE (PhpStorm : Shift+F6 sur chaque propriété).  
-Mettre à jour les templates Twig si nécessaire (généralement pas d'impact car Twig appelle les getters).
-
-**Gain :** lisibilité 7 → 13 XP (les 3 critères sont tous remplis)
-
----
-
-### R9 ✅ DONE — Ajouter un seed de produits `+1 XP`
-
-**Problème :** archive vide sur installation fraîche, impossible de tester sans ajouter manuellement des produits.
-
-Créer `src/Command/PopulateProductCommand.php` avec 5 à 10 produits Apple discontinués emblématiques (iPhone 1, PowerBook, iPod Classic…) en statut `Approved`.
-
-**Gain :** seed 1 → 2 XP
-
----
-
-### R10 ✅ DONE — Implémenter la recherche `+6 XP`
-
-**Problème :** fonctionnalité décrite dans le README mais absente du code.
-
-Ajouter dans `ProductRepository.php` :
+Dans `RegistrationController`, hasher le UUID avec le service :
 
 ```php
-public function search(string $query): array
-{
-    return $this->createQueryBuilder('p')
-        ->join('p.productType', 't')
-        ->where('p.status = :status')
-        ->andWhere('LOWER(p.productName) LIKE :q OR LOWER(p.technicalName) LIKE :q OR LOWER(t.type) LIKE :q')
-        ->setParameter('status', SubmissionStatus::Approved)
-        ->setParameter('q', '%' . strtolower($query) . '%')
-        ->orderBy('p.id', 'DESC')
-        ->getQuery()
-        ->getResult();
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+
+public function register(
+    Request $request,
+    EntityManagerInterface $em,
+    UserPasswordHasherInterface $hasher
+): Response {
+    // ...
+    $rawUuid = Uuid::v4()->toRfc4122();
+    $user->setUuid($rawUuid);
+    $user->setPassword($hasher->hashPassword($user, $rawUuid)); // bcrypt/argon2 auto
+    // ...
 }
 ```
 
-Créer `src/Controller/SearchController.php` + `templates/search/index.html.twig` + ajouter le champ de recherche dans `base.html.twig`.
+Option B (plus simple) — garder l'approche actuelle mais remplacer `hash('sha256', $uuid)` par `password_hash($uuid, PASSWORD_BCRYPT)` et comparer avec `password_verify()` dans l'authenticateur.
 
-**Gain :** fonctionnalités frontend 6 → 12 XP
+**Effort estimé : 45 minutes.**
+
+#### Remédiation 5.3 — +5 XP
+
+Compléter `src/EventSubscriber/SecurityHeadersSubscriber.php` :
+
+```php
+public function onKernelResponse(ResponseEvent $event): void
+{
+    $response = $event->getResponse();
+
+    // Headers existants
+    $response->headers->set('X-Content-Type-Options', 'nosniff');
+    $response->headers->set('X-Frame-Options', 'DENY');
+    $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+    // À ajouter — HSTS (force HTTPS pendant 1 an)
+    $response->headers->set(
+        'Strict-Transport-Security',
+        'max-age=31536000; includeSubDomains'
+    );
+
+    // À ajouter — CSP (adapter selon les CDN effectivement utilisés)
+    $response->headers->set(
+        'Content-Security-Policy',
+        "default-src 'self'; " .
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " .
+        "style-src 'self' 'unsafe-inline'; " .
+        "img-src 'self' data: https:; " .
+        "font-src 'self'; " .
+        "frame-ancestors 'none'"
+    );
+}
+```
+
+> Note : `'unsafe-inline'` est nécessaire si des styles/scripts inline existent dans les templates Twig. Pour un score optimal, les remplacer par des classes Tailwind et supprimer `'unsafe-inline'`.
+
+**Effort estimé : 30 minutes. Gain : +5 XP (passage de 4 à 9 XP sur le critère OWASP).**
 
 ---
 
-## Score projeté après remédiation complète
+### Bloc 6 — Déploiement & infrastructure — 15 / 15
 
-| Bloc | Avant | Après | Delta |
-|---|---|---|---|
-| 1. Cadrage & conception | 7 | 15 | +8 |
-| 2. Frontend | 15 | 25 | +10 |
-| 3. Backend | 25 | 30 | +5 |
-| 4. Base de données | 10 | 15 | +5 |
-| 5. Sécurité | 12 | 25 | +13 |
-| 6. Déploiement | 0 | 15 | +15 |
-| 7. Qualité | 15 | 25 | +10 |
-| 8. Ambition | 7 | 10 | +3 |
-| **TOTAL** | **91** | **160** | **+69** |
+| Critère | XP | Niveau |
+|---|---|---|
+| Application accessible en ligne | 5 / 5 | Max |
+| Domaine + TLS + reverse proxy | 6 / 6 | Max |
+| Pipeline CI/CD | 4 / 4 | Max |
 
----
+**6.1 Accessible — 5/5**
+- `curl -sI https://timemachine.eliottandre.com` → 200 OK ✅
 
-### Ordre d'exécution recommandé (par ratio gain/effort)
+**6.2 Domaine + TLS — 6/6**
+- Custom domain + TLS valide + redirect HTTP→HTTPS 301 + Apache/2.4.58 ✅
 
-| Priorité | Action | Gain | Effort |
-|---|---|---|---|
-| 🔴 1 | R1 — Retirer les secrets | +5 XP | 15 min |
-| 🔴 2 | R5 — Déployer | +11 XP | 1-2h |
-| 🟠 3 | R2 — Schéma archi README | +4 XP | 20 min |
-| 🟠 4 | R3 — Install + env vars README | +4 XP | 20 min |
-| 🟠 5 | R7 — Spécifications fonctionnelles | +4 XP | 30 min |
-| 🟠 6 | R6 — CSRF review + security headers | +5 XP | 30 min |
-| 🟡 7 | R4 — Migrations Doctrine | +4 XP | 15 min |
-| 🟡 8 | R8 — Convention nommage PHP | +6 XP | 1h |
-| 🟡 9 | R10 — Implémenter la recherche | +6 XP | 2h |
-| 🟢 10 | R9 — Seed de produits | +1 XP | 45 min |
+**6.3 CI/CD — 4/4**
+- `.github/workflows/deploy.yml` : push main → SSH → git pull + composer + cache + reload services ✅
 
 ---
 
-> **Rappel final :** ce rapport est produit par un **simulateur**, pas par l'enseignant qui notera réellement le projet. La note réelle peut diverger à la hausse (démo convaincante, Q&R maîtrisées) ou à la baisse (fonctionnalité qui ne marche pas en live, incompréhension du code en soutenance). L'objectif de ce document est d'identifier les chantiers prioritaires avant le rendu, pas de prédire la note exacte.
+### Bloc 7 — Qualité du code & documentation — 25 / 25
+
+| Critère | XP | Niveau |
+|---|---|---|
+| Lisibilité & organisation | 13 / 13 | Max |
+| README | 7 / 7 | Max |
+| Historique Git | 5 / 5 | Max |
+
+**7.1 Lisibilité — 13/13**
+- Max 370 lignes (`PopulateProductCommand.php`), aucun fichier > 1000 lignes
+- Couches bien séparées : Controllers / Repositories / Entities / Forms / Security / EventSubscribers / Enums / Commands
+- PSR-1 respecté (refactorisé dans commit `61e24d7`)
+
+**7.2 README — 7/7**
+- Description, install locale step-by-step, table des variables d'env, justifications techniques par paragraphe, diagramme Mermaid
+
+**7.3 Git — 5/5**
+- 59 commits, Conventional Commits (`feat(scope):`, `fix:`, `docs:`, `refactor:`, `ci:`), branches feature utilisées
+
+---
+
+### Bloc 8 — Ambition technique — 10 / 10
+
+| Critère | XP | Niveau |
+|---|---|---|
+| Difficulté & richesse fonctionnelle | 6 / 6 | Max |
+| Originalité | 4 / 4 | Max |
+
+**8.1 Richesse — 6/6**
+- Workflow 6 états multi-acteurs, auth custom, inflation-adjusted pricing, audit trail, recherche full-text — bien au-delà d'un CRUD
+
+**8.2 Originalité — 4/4**
+- Auth passwordless style Mullvad, archive Apple discontinués, reconstitution Apple Store 2017, prix historique + inflation en parallèle
+
+---
+
+## Plan de remédiation — 11 XP récupérables
+
+| Priorité | Action | Fichier(s) | XP gagné | Effort |
+|---|---|---|---|---|
+| 1 | Ajouter CSP + HSTS dans SecurityHeadersSubscriber | `src/EventSubscriber/SecurityHeadersSubscriber.php` | **+5 XP** | ~30 min |
+| 2 | Ajouter contraintes Assert sur les entités | `src/Entity/Product.php`, `src/Entity/User.php` | **+3 XP** | ~20 min |
+| 3 | Remplacer SHA-256 par bcrypt/argon2 pour le hash UUID | `src/Entity/User.php`, `src/Security/UuidAuthenticator.php`, `src/Controller/RegistrationController.php` | **+3 XP** | ~45 min |
+
+**Total récupérable : 11 XP → score cible 160/160**
+
+### Ordre d'exécution recommandé
+
+1. **SecurityHeadersSubscriber** (30 min, +5 XP) — modification d'une seule méthode dans un seul fichier, aucun risque de régression.
+2. **Contraintes Assert** (20 min, +3 XP) — ajout d'annotations sur les entités, tester le formulaire de soumission après.
+3. **Hash bcrypt** (45 min, +3 XP) — le plus risqué fonctionnellement (l'authenticateur doit être mis à jour en parallèle). Tester le cycle complet register → login avant de pousser.
+
+---
+
+## Points à surveiller pour la soutenance
+
+- **GentlePuppyController** (`/puppy`) : vestige de scaffold Symfony, sans impact sur la note ici mais visible lors d'une lecture humaine. Supprimer avant la démo.
+- **Compte démo admin** : la procédure actuelle (`UPDATE "user" SET roles = ...`) suppose un accès direct à la base. Prévoir une démonstration en live avec un compte admin déjà provisionné.
+- **CSP `unsafe-inline`** : si le correcteur teste avec DevTools, une CSP trop permissive (`unsafe-inline`) sera visible. Idéalement, externaliser les styles inline restants avant d'activer la CSP.
+
+---
+
+*Rapport généré par simulateur — pas l'enseignant officiel. Note estimée : **149 / 160 XP**.*

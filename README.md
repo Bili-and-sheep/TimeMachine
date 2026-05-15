@@ -65,12 +65,12 @@ Why Symfony and not something trendier? Because this project is about *joy*.
 
 I'm no longer a full-time web developer — I do this for fun, in the margins of a busy life. Symfony is a framework I know, and it lets me skip the setup friction and go straight to the part I actually love: the content, the design, the idea. Using something familiar means more time building, less time debugging a new ecosystem.
 
-**Justifications techniques :**
-- **Symfony 8 / PHP 8.4** : framework maîtrisé, permet d'aller directement au cœur du projet sans friction d'apprentissage.
-- **PostgreSQL 16** : robustesse relationnelle, support JSON natif pour le champ `options` des produits (couleurs, stockages…).
-- **Doctrine ORM** : mapping entité-table type-safe, QueryBuilder paramétré (protection SQLi native).
-- **Tailwind v4** : utility-first CSS avec tokens de design Apple personnalisés, responsive sans JavaScript.
-- **Symfony UX / Stimulus / Turbo** : progressive enhancement, transitions de page sans rechargement complet.
+**Technical justifications:**
+- **Symfony 8 / PHP 8.4**: a framework I know well, letting me skip setup friction and focus on what matters — the content and the idea.
+- **PostgreSQL 16**: relational robustness, native JSON support for the product `options` field (colors, storage sizes…).
+- **Doctrine ORM**: type-safe entity-table mapping, parameterized QueryBuilder (native SQLi protection).
+- **Tailwind v4**: utility-first CSS with custom Apple design tokens, fully responsive without JavaScript.
+- **Symfony UX / Stimulus / Turbo**: progressive enhancement, page transitions without full reloads.
 
 ```mermaid
 graph TD
@@ -185,55 +185,55 @@ I wanted:
 
 ---
 
-## 🚀 Installation locale
+## 🚀 Local installation
 
-### Prérequis
+### Prerequisites
 - PHP 8.4+
 - Composer
-- Docker (pour PostgreSQL) ou PostgreSQL 16 installé localement
+- Docker (for PostgreSQL) or PostgreSQL 16 installed locally
 
-### Étapes
+### Steps
 
 ```bash
-# 1. Cloner le repo
+# 1. Clone the repo
 git clone git@github.com:Bili-and-sheep/TimeMachine.git
 cd TimeMachine
 
-# 2. Installer les dépendances
+# 2. Install dependencies
 composer install
 
-# 3. Configurer l'environnement
+# 3. Configure the environment
 cp .env .env.local
-# Éditer .env.local avec vos valeurs (voir Variables ci-dessous)
+# Edit .env.local with your values (see Variables below)
 
-# 4. Démarrer la base de données
+# 4. Start the database
 docker compose up -d
 
-# 5. Créer le schéma et peupler les données de référence
+# 5. Create the schema and seed reference data
 php bin/console doctrine:schema:create
 php bin/console app:populate-os
 php bin/console app:populate-product-type
 
-# 6. Lancer le serveur
+# 6. Start the server
 symfony serve
 # → http://localhost:8000
 ```
 
-## ⚙️ Variables d'environnement
+## ⚙️ Environment variables
 
-| Variable | Exemple | Description |
+| Variable | Example | Description |
 |---|---|---|
-| `APP_ENV` | `dev` | Environnement (`dev`, `prod`, `test`) |
-| `APP_SECRET` | `<random_32_chars>` | Clé secrète Symfony — **ne jamais commiter** |
-| `DATABASE_URL` | `postgresql://app:password@127.0.0.1:5432/app?serverVersion=16` | DSN PostgreSQL |
-| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Transport messages asynchrones |
-| `MAILER_DSN` | `null://null` | Configuration SMTP |
+| `APP_ENV` | `dev` | Environment (`dev`, `prod`, `test`) |
+| `APP_SECRET` | `<random_32_chars>` | Symfony secret key — **never commit this** |
+| `DATABASE_URL` | `postgresql://app:password@127.0.0.1:5432/app?serverVersion=16` | PostgreSQL DSN |
+| `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | Async message transport |
+| `MAILER_DSN` | `null://null` | SMTP configuration |
 
-### Compte de démo
+### Demo account
 
-Créer un compte via `/register` → noter le UUID affiché une seule fois → se connecter via `/login`.
+Create an account at `/register` → save the UUID shown once → log in at `/login`.
 
-Pour obtenir les droits admin :
+To grant admin rights:
 ```sql
 UPDATE "user" SET roles = '["ROLE_ADMIN"]' WHERE id = 1;
 ```
@@ -243,6 +243,10 @@ UPDATE "user" SET roles = '["ROLE_ADMIN"]' WHERE id = 1;
 ## 🚧 Status
 
 This project is actively in development. Contributions, feedback, and product requests are welcome.
+
+---
+
+## 🔜 [Roadmap](ROADMAP.md)
 
 ---
 
