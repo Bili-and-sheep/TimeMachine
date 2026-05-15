@@ -16,11 +16,11 @@ jobs:
             key: ${{ secrets.SSH_PRIVATE_KEY }}
             script: |
                 cd /var/www/timemachine
-                git pull origin main
+                git fetch origin main
+                git checkout -B main FETCH_HEAD
                 APP_ENV=prod composer install --no-dev --optimize-autoloader
                 APP_ENV=prod php bin/console cache:clear
                 APP_ENV=prod php bin/console cache:warmup
                 APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction
-
                 sudo systemctl reload php8.4-fpm
                 sudo systemctl reload apache2
