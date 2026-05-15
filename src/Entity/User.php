@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -22,7 +21,6 @@ class User implements UserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 256)]  // UUIDs are exactly 36 chars in RFC 4122 format
-    #[Assert\NotBlank]
     private ?string $uuid = null;
 
     #[ORM\Column]
