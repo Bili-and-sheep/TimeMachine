@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
 class Product
@@ -18,9 +19,13 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Product name is required.')]
+    #[Assert\Length(max: 255)]
     private ?string $productName = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: 'Technical name is required.')]
+    #[Assert\Length(max: 255)]
     private ?string $technicalName = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
@@ -33,6 +38,8 @@ class Product
     private ?string $description = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Price is required.')]
+    #[Assert\Positive(message: 'Price must be a positive integer.')]
     private ?int $originalPrice = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
