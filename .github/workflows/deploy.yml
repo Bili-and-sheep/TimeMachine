@@ -11,19 +11,16 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            set -e
-            git config --global --add safe.directory /var/www/timemachine
-            cd /var/www/timemachine
-            git fetch origin
-            git reset --hard origin/main
-            APP_ENV=prod composer install --no-dev --optimize-autoloader
-            APP_ENV=prod php bin/console cache:clear
-            APP_ENV=prod php bin/console cache:warmup
-            APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction
-            APP_ENV=prod php bin/console app:populate-products
-            sudo systemctl reload php8.4-fpm
-            sudo systemctl reload apache2
+            host: ${{ secrets.SERVER_HOST }}
+            username: ${{ secrets.SERVER_USER }}
+            key: ${{ secrets.SSH_PRIVATE_KEY }}
+            script: |
+                cd /var/www/timemachine
+                git pull origin main
+                APP_ENV=prod composer install --no-dev --optimize-autoloader
+                APP_ENV=prod php bin/console cache:clear
+                APP_ENV=prod php bin/console cache:warmup
+                APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction
+
+                sudo systemctl reload php8.4-fpm
+                sudo systemctl reload apache2
