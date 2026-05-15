@@ -16,6 +16,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
+            git config --global --add safe.directory /var/www/timemachine
             cd /var/www/timemachine
             git fetch origin
             git reset --hard origin/main
