@@ -32,7 +32,11 @@
         {% for field in form %}
             <div>
                 {{ form_label(field, null, {label_attr: {class: 'block text-xs text-apple-gray mb-1'}}) }}
-                {{ form_widget(field, {attr: {class: 'w-full border border-apple-border rounded-lg px-3 py-2 text-sm text-apple-dark focus:outline-none focus:border-apple-blue transition-colors bg-white'}}) }}
+                {% if field.vars.name == 'imageFiles' %}
+                    {{ form_widget(field, {attr: {class: 'w-full text-sm text-apple-dark', multiple: true}}) }}
+                {% else %}
+                    {{ form_widget(field, {attr: {class: 'w-full border border-apple-border rounded-lg px-3 py-2 text-sm text-apple-dark focus:outline-none focus:border-apple-blue transition-colors bg-white'}}) }}
+                {% endif %}
                 {{ form_errors(field) }}
             </div>
         {% endfor %}

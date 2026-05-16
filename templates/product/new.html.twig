@@ -63,7 +63,7 @@
                     <span class="text-sm font-medium text-apple-dark group-hover:text-apple-blue transition-colors">Click to upload images</span>
                     <span id="image-file-count" class="text-xs text-apple-gray">JPEG, PNG or WebP · up to 15 MB each</span>
                 </label>
-                {{ form_widget(form.imageFiles, {attr: {class: 'sr-only'}}) }}
+                {{ form_widget(form.imageFiles, {attr: {class: 'sr-only', multiple: true}}) }}
                 {{ form_errors(form.imageFiles) }}
             </div>
 
