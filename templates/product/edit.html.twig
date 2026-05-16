@@ -2,51 +2,325 @@
 {% block title %}Edit — {{ product.productName }}{% endblock %}
 
 {% block body %}
-<div class="max-w-2xl mx-auto px-6 py-12">
-    <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-1">{{ product.productType.type }}</p>
-    <h1 class="text-4xl font-bold tracking-tight text-apple-dark mb-1">{{ product.productName }}</h1>
-    <p class="text-sm text-apple-gray mb-8">Status: <span class="font-medium">{{ product.status.label() }}</span></p>
+{{ form_start(form, {attr: {enctype: 'multipart/form-data'}}) }}
 
-    {% if product.images is not empty %}
-    <div class="mb-6">
-        <span class="block text-xs text-apple-gray mb-2">Current images</span>
-        <div class="grid grid-cols-3 gap-3">
-            {% for image in product.images %}
-            <div class="relative group">
-                <img src="{{ image.path }}" alt="{{ product.productName }}"
-                     class="w-full aspect-square object-contain bg-[#f5f5f7] rounded-xl p-2">
-                <form method="post"
-                      action="{{ path('app_product_image_delete', {id: product.id, imageId: image.id}) }}">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_image_' ~ image.id) }}">
-                    <button type="submit"
-                            class="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                            title="Remove image">×</button>
-                </form>
+{# ── HERO HEADER ── #}
+<section class="bg-white">
+    <div class="max-w-[980px] mx-auto px-6 pt-10 pb-5">
+        <div class="flex items-start justify-between gap-6 flex-wrap">
+
+            <div class="flex-1 min-w-0">
+                {{ form_widget(form.productName, {attr: {
+                    class: 'text-[40px] md:text-[48px] font-bold tracking-tight leading-[1.07] text-apple-dark bg-transparent border-b-2 border-transparent focus:border-apple-blue outline-none w-full placeholder:font-normal placeholder:text-apple-border',
+                    placeholder: 'Product name'
+                }}) }}
+                {{ form_errors(form.productName) }}
+
+                <p class="mt-3 text-[15px] text-apple-dark flex items-center gap-1.5 flex-wrap">
+                    À partir de&nbsp;${{ form_widget(form.originalPrice, {attr: {
+                        class: 'font-medium text-[15px] text-apple-dark bg-transparent border-b border-apple-border focus:border-apple-blue outline-none w-20',
+                        placeholder: '0'
+                    }}) }}
+                    {{ form_errors(form.originalPrice) }}
+                </p>
+
+                <p class="mt-2 text-[13px] text-apple-gray flex items-center gap-2 flex-wrap">
+                    <span class="inline-block w-2 h-2 rounded-full bg-red-400 shrink-0"></span>
+                    Released
+                    {{ form_widget(form.releaseDate, {attr: {class: 'text-[13px] text-apple-gray bg-transparent border-b border-apple-border focus:border-apple-blue outline-none'}}) }}
+                    {{ form_errors(form.releaseDate) }}
+                    &nbsp;·&nbsp; Discontinued
+                    {{ form_widget(form.discontinuedYear, {attr: {class: 'text-[13px] text-apple-gray bg-transparent border-b border-apple-border focus:border-apple-blue outline-none'}}) }}
+                    {{ form_errors(form.discontinuedYear) }}
+                </p>
             </div>
+
+            <div class="shrink-0 text-right">
+                {{ form_widget(form.productType, {attr: {
+                    class: 'text-[13px] text-apple-gray border border-apple-border rounded-full px-3 py-1 bg-white focus:outline-none focus:border-apple-blue'
+                }}) }}
+                {{ form_errors(form.productType) }}
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ── MAIN SPLIT: IMAGE LEFT · DETAILS RIGHT ── #}
+<section class="bg-white">
+    <div class="max-w-[980px] mx-auto">
+        <div class="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] min-h-[520px]">
+
+            {# ── LEFT: existing images + upload ── #}
+            <div class="bg-[#f5f5f7] flex flex-col px-10 py-10 min-h-[420px] gap-6">
+
+                {% if product.images is not empty %}
+                    <div class="grid grid-cols-3 gap-2">
+                        {% for image in product.images %}
+                        <div class="relative group">
+                            <img src="{{ image.path }}" alt="{{ product.productName }}"
+                                 class="w-full aspect-square object-contain bg-white/60 rounded-xl p-2">
+                            <form method="post"
+                                  action="{{ path('app_product_image_delete', {id: product.id, imageId: image.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_image_' ~ image.id) }}">
+                                <button type="submit"
+                                        class="absolute top-1.5 right-1.5 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm leading-none flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                        title="Remove image">×</button>
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <label for="{{ form.imageFiles.vars.id }}"
+                           class="cursor-pointer group flex items-center gap-3 border-t border-apple-border/30 pt-4">
+                        <span class="w-10 h-10 bg-apple-border/20 group-hover:bg-apple-border/40 transition-colors rounded-xl flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-apple-gray/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/>
+                            </svg>
+                        </span>
+                        <span>
+                            <span class="block text-sm font-medium text-apple-dark group-hover:text-apple-blue transition-colors">Add more images</span>
+                            <span id="image-file-count" class="block text-xs text-apple-gray">JPEG, PNG or WebP · up to 15 MB each</span>
+                        </span>
+                    </label>
+
+                {% else %}
+                    <div class="flex-1 flex flex-col items-center justify-center">
+                        <label for="{{ form.imageFiles.vars.id }}"
+                               class="cursor-pointer group text-center flex flex-col items-center gap-3">
+                            <span class="w-24 h-24 bg-apple-border/20 group-hover:bg-apple-border/40 transition-colors rounded-3xl flex items-center justify-center">
+                                <svg class="w-10 h-10 text-apple-gray/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+                            <span class="text-sm font-medium text-apple-dark group-hover:text-apple-blue transition-colors">Click to upload images</span>
+                            <span id="image-file-count" class="text-xs text-apple-gray">JPEG, PNG or WebP · up to 15 MB each</span>
+                        </label>
+                    </div>
+                {% endif %}
+
+                {{ form_widget(form.imageFiles, {attr: {class: 'sr-only', multiple: true}}) }}
+                {{ form_errors(form.imageFiles) }}
+            </div>
+
+            {# ── RIGHT: model card ── #}
+            <div class="px-7 lg:px-9 py-10 flex flex-col gap-6 bg-white">
+                <div>
+                    <h2 class="text-[17px] font-semibold tracking-tight text-apple-dark mb-3 leading-snug">
+                        Modèle. <span class="font-normal text-apple-gray">Quel modèle vous faut-il ?</span>
+                    </h2>
+                    <div class="w-full border border-apple-border rounded-2xl px-4 py-3">
+                        {{ form_widget(form.technicalName, {attr: {
+                            class: 'text-[13px] font-semibold text-apple-dark bg-transparent outline-none w-full',
+                            placeholder: 'Technical name (e.g. MacBook Pro M3, 14-inch)'
+                        }}) }}
+                        {{ form_errors(form.technicalName) }}
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-[13px] text-apple-gray mb-2">Description</p>
+                    {{ form_widget(form.description, {attr: {
+                        class: 'w-full text-sm text-apple-dark bg-transparent border border-apple-border rounded-xl px-3 py-2 focus:border-apple-blue outline-none resize-none',
+                        rows: 4,
+                        placeholder: 'Brief description of the product…'
+                    }}) }}
+                    {{ form_errors(form.description) }}
+                </div>
+
+                <div class="mt-auto pt-5 border-t border-apple-border">
+                    <div class="flex items-start gap-3">
+                        <span class="mt-0.5 w-5 h-5 rounded-full border border-apple-gray flex items-center justify-center text-apple-gray text-[11px] font-semibold shrink-0">i</span>
+                        <p class="text-[11px] text-apple-gray leading-relaxed">
+                            Status: <span class="font-medium text-apple-dark">{{ product.status.label() }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ── OPTIONS ── #}
+<section class="border-t border-apple-border bg-white py-12">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-1">Options</h2>
+        <p class="text-[11px] text-apple-gray mb-5">Add configurable variants like Colors, Storage, or Size. Press Enter to add each value.</p>
+
+        {{ form_widget(form.optionsJson) }}
+
+        <div id="options-container" class="flex flex-col gap-3 mb-4"></div>
+
+        <button type="button" id="add-option-btn"
+                class="text-xs text-apple-blue hover:underline cursor-pointer">
+            + Add option
+        </button>
+    </div>
+</section>
+
+{# ── OS SUPPORT TIMELINE ── #}
+<section class="border-t border-apple-border bg-[#f5f5f7] py-14">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-6">Software support</h2>
+        <div class="flex items-center gap-4 flex-wrap">
+            <div class="text-center">
+                <p class="text-[10px] uppercase tracking-widest text-apple-gray mb-2">Launched with</p>
+                {{ form_widget(form.launchOS, {attr: {
+                    class: 'bg-apple-dark text-white text-sm font-medium px-4 py-1.5 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-apple-blue'
+                }}) }}
+                {{ form_errors(form.launchOS) }}
+            </div>
+            <div class="flex-1 min-w-[60px]">
+                <div class="h-px bg-gradient-to-r from-apple-dark to-apple-gray relative">
+                    <span class="absolute right-0 top-1/2 -translate-y-1/2 text-apple-gray text-xs">›</span>
+                </div>
+            </div>
+            <div class="text-center">
+                <p class="text-[10px] uppercase tracking-widest text-apple-gray mb-2">Last supported</p>
+                {{ form_widget(form.lastSupportedOS, {attr: {
+                    class: 'bg-apple-gray text-white text-sm font-medium px-4 py-1.5 rounded-full border-0 focus:outline-none focus:ring-2 focus:ring-apple-blue'
+                }}) }}
+                {{ form_errors(form.lastSupportedOS) }}
+            </div>
+        </div>
+    </div>
+</section>
+
+{# ── TAGS ── #}
+<section class="border-t border-apple-border bg-[#f5f5f7] py-12">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-4">Archive tags</h2>
+        <div class="flex flex-wrap gap-2">
+            {% for choice in form.tags %}
+                <label class="inline-flex items-center cursor-pointer select-none border border-apple-border rounded-full px-3 py-1 text-xs text-apple-dark hover:border-apple-dark transition-all has-[:checked]:bg-apple-dark has-[:checked]:text-white has-[:checked]:border-apple-dark">
+                    {{ form_widget(choice, {attr: {class: 'sr-only'}}) }}
+                    {{ choice.vars.label }}
+                </label>
             {% endfor %}
         </div>
     </div>
-    {% endif %}
+</section>
 
-    {{ form_start(form, {attr: {class: 'space-y-5'}}) }}
-        {% for field in form %}
-            <div>
-                {{ form_label(field, null, {label_attr: {class: 'block text-xs text-apple-gray mb-1'}}) }}
-                {% if field.vars.name == 'imageFiles' %}
-                    {{ form_widget(field, {attr: {class: 'w-full text-sm text-apple-dark', multiple: true}}) }}
-                {% else %}
-                    {{ form_widget(field, {attr: {class: 'w-full border border-apple-border rounded-lg px-3 py-2 text-sm text-apple-dark focus:outline-none focus:border-apple-blue transition-colors bg-white'}}) }}
-                {% endif %}
-                {{ form_errors(field) }}
-            </div>
-        {% endfor %}
+{# ── SOURCES ── #}
+<section class="border-t border-apple-border bg-white py-12">
+    <div class="max-w-[680px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-3">Sources</h2>
+        {{ form_widget(form.sources, {attr: {
+            class: 'w-full text-sm text-apple-gray bg-transparent border border-apple-border rounded-lg px-3 py-2 focus:border-apple-blue outline-none resize-none',
+            rows: 3,
+            placeholder: 'Links or references…'
+        }}) }}
+        {{ form_errors(form.sources) }}
+    </div>
+</section>
 
-        <button type="submit"
-                class="mt-2 px-5 py-2.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
-            Save changes
-        </button>
-    {{ form_end(form) }}
-
-    <a href="{{ path('app_product_show', {id: product.id}) }}" class="inline-block mt-6 text-sm text-apple-blue hover:underline">← Cancel</a>
+{# ── STICKY FOOTER ── #}
+<div class="sticky bottom-0 z-40 bg-white/80 backdrop-blur-xl border-t border-apple-border">
+    <div class="max-w-[980px] mx-auto px-6 py-3 flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-1 min-w-0">
+            <span class="text-sm font-semibold text-apple-dark truncate">{{ product.productName }}</span>
+            <span class="text-apple-gray text-sm hidden sm:inline">&nbsp;·&nbsp; {{ product.status.label() }}</span>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap shrink-0">
+            <a href="{{ path('app_product_show', {id: product.id}) }}"
+               class="text-apple-blue text-sm hover:underline">← Cancel</a>
+            <button type="submit"
+                    class="px-4 py-1.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
+                Save changes
+            </button>
+        </div>
+    </div>
 </div>
+
+{{ form_end(form) }}
+
+<script>
+(function () {
+    // ── Image upload feedback ──────────────────────────────────────
+    const fileInput = document.getElementById('{{ form.imageFiles.vars.id }}');
+    const fileCount = document.getElementById('image-file-count');
+
+    fileInput.addEventListener('change', function () {
+        const n = this.files.length;
+        fileCount.textContent = n === 0
+            ? 'JPEG, PNG or WebP · up to 15 MB each'
+            : n + ' image' + (n > 1 ? 's' : '') + ' selected';
+    });
+
+    // ── Options builder (pre-populated from existing data) ────────
+    const hiddenField = document.getElementById('{{ form.optionsJson.vars.id }}');
+    const container   = document.getElementById('options-container');
+
+    const raw = {{ product.options ? product.options|json_encode|raw : 'null' }};
+    let options = raw
+        ? Object.entries(raw).map(([name, values]) => ({name, values: Array.isArray(values) ? values : [String(values)]}))
+        : [];
+
+    function esc(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function sync() {
+        const obj = {};
+        options.forEach(o => {
+            if (o.name.trim()) obj[o.name.trim()] = o.values.filter(v => v.trim());
+        });
+        hiddenField.value = Object.keys(obj).length ? JSON.stringify(obj) : '';
+    }
+
+    function render() {
+        container.innerHTML = '';
+        options.forEach((opt, oi) => {
+            const group = document.createElement('div');
+            group.className = 'border border-apple-border rounded-xl p-4';
+            group.innerHTML = `
+                <div class="flex items-center gap-2 mb-3">
+                    <input type="text"
+                           class="opt-name font-semibold text-sm text-apple-dark bg-transparent border-b border-transparent focus:border-apple-blue outline-none flex-1 placeholder:font-normal placeholder:text-apple-gray/50"
+                           placeholder="Option name (e.g. Colors)"
+                           value="${esc(opt.name)}">
+                    <button type="button" class="rm-opt text-xs text-red-400 hover:text-red-600 cursor-pointer shrink-0">Remove</button>
+                </div>
+                <div class="vals flex flex-wrap gap-2 mb-3">
+                    ${opt.values.map((v, vi) => `
+                        <span class="inline-flex items-center gap-1 border border-apple-border rounded-full px-3 py-1 text-xs text-apple-dark">
+                            ${esc(v)}
+                            <button type="button" class="rm-val cursor-pointer text-apple-gray hover:text-red-500 leading-none" data-vi="${vi}">×</button>
+                        </span>`).join('')}
+                </div>
+                <input type="text"
+                       class="add-val text-xs border-b border-apple-border outline-none bg-transparent placeholder:text-apple-gray/50 w-full"
+                       placeholder="Type a value and press Enter…">
+            `;
+
+            group.querySelector('.opt-name').addEventListener('input', e => {
+                options[oi].name = e.target.value; sync();
+            });
+            group.querySelector('.rm-opt').addEventListener('click', () => {
+                options.splice(oi, 1); render(); sync();
+            });
+            group.querySelectorAll('.rm-val').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    options[oi].values.splice(+btn.dataset.vi, 1); render(); sync();
+                });
+            });
+            group.querySelector('.add-val').addEventListener('keydown', e => {
+                if (e.key !== 'Enter') return;
+                e.preventDefault();
+                const v = e.target.value.trim();
+                if (v) { options[oi].values.push(v); render(); sync(); }
+            });
+
+            container.appendChild(group);
+        });
+    }
+
+    document.getElementById('add-option-btn').addEventListener('click', () => {
+        options.push({name: '', values: []}); render();
+    });
+
+    render();
+    sync();
+})();
+</script>
 {% endblock %}
