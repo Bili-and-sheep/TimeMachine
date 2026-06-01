@@ -17,7 +17,7 @@ jobs:
             script: |
                 cd /var/www/timemachine
                 git fetch origin main
-                git checkout -B main FETCH_HEAD
+                git reset --hard FETCH_HEAD
                 APP_ENV=prod composer install --no-dev --optimize-autoloader
                 APP_ENV=prod php bin/console cache:clear
                 APP_ENV=prod php bin/console cache:warmup
