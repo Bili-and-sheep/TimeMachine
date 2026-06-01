@@ -9,11 +9,15 @@ use App\Entity\Tag;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Image;
 
 class ProductFormType extends AbstractType
 {
@@ -28,23 +32,20 @@ class ProductFormType extends AbstractType
                 'label'        => 'Category',
             ])
             ->add('releaseDate', DateType::class, [
-                'label'    => 'Release Date',
-                'widget'   => 'single_text',
-                'input'    => 'datetime_immutable',
-                'required' => false,
+                'label'  => 'Release Date',
+                'widget' => 'single_text',
+                'input'  => 'datetime_immutable',
             ])
             ->add('discontinuedYear', DateType::class, [
-                'label'    => 'Year Discontinued',
-                'widget'   => 'single_text',
-                'input'    => 'datetime_immutable',
-                'required' => false,
+                'label'  => 'Year Discontinued',
+                'widget' => 'single_text',
+                'input'  => 'datetime_immutable',
             ])
             ->add('launchOS', EntityType::class, [
                 'class'        => OperatingSystem::class,
                 'choice_label' => fn(OperatingSystem $os) => $os->getFamily()->value . ' ' . $os->getVersion(),
                 'group_by'     => fn(OperatingSystem $os) => $os->getFamily()->value,
                 'label'        => 'Launch OS',
-                'required'     => false,
                 'placeholder'  => '— select —',
             ])
             ->add('lastSupportedOS', EntityType::class, [
@@ -52,16 +53,17 @@ class ProductFormType extends AbstractType
                 'choice_label' => fn(OperatingSystem $os) => $os->getFamily()->value . ' ' . $os->getVersion(),
                 'group_by'     => fn(OperatingSystem $os) => $os->getFamily()->value,
                 'label'        => 'Last Supported OS',
-                'required'     => false,
                 'placeholder'  => '— select —',
             ])
             ->add('description', TextareaType::class, [
-                'label'    => 'Description',
-                'required' => false,
+                'label' => 'Description',
             ])
             ->add('originalPrice', IntegerType::class, ['label' => 'Original Price ($)'])
             ->add('sources', TextareaType::class, [
-                'label'    => 'Sources',
+                'label' => 'Sources',
+            ])
+            ->add('optionsJson', HiddenType::class, [
+                'mapped'   => false,
                 'required' => false,
             ])
             ->add('tags', EntityType::class, [
@@ -71,6 +73,21 @@ class ProductFormType extends AbstractType
                 'expanded'     => true,
                 'label'        => 'Tags',
                 'required'     => false,
+            ])
+            ->add('imageFiles', FileType::class, [
+                'label'       => 'Images',
+                'multiple'    => true,
+                'mapped'      => false,
+                'required'    => false,
+                'constraints' => [
+                    new All(constraints: [
+                        new Image(
+                            maxSize: '15M',
+                            mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+                            mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, or WebP).',
+                        ),
+                    ]),
+                ],
             ])
         ;
     }

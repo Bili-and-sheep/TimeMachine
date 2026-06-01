@@ -22,3 +22,5 @@
 /.idea/
 /.ollamassist/
 /config/reference.php
+/public/uploads/products/*
+!/public/uploads/products/.gitkeep

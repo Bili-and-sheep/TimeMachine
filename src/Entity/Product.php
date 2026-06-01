@@ -29,12 +29,15 @@ class Product
     private ?string $technicalName = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true)]
+    #[Assert\NotNull(message: 'Release date is required.')]
     private ?\DateTimeImmutable $releaseDate = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\NotNull(message: 'Discontinued year is required.')]
     private ?\DateTimeImmutable $discontinuedYear = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\NotBlank(message: 'Description is required.')]
     private ?string $description = null;
 
     #[ORM\Column]
@@ -43,6 +46,7 @@ class Product
     private ?int $originalPrice = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Assert\NotBlank(message: 'Sources are required.')]
     private ?string $sources = null;
 
     #[ORM\ManyToOne]
@@ -51,10 +55,12 @@ class Product
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true)]
+    #[Assert\NotNull(message: 'Launch OS is required.')]
     private ?OperatingSystem $launchOS = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true)]
+    #[Assert\NotNull(message: 'Last supported OS is required.')]
     private ?OperatingSystem $lastSupportedOS = null;
 
     #[ORM\ManyToOne(inversedBy: 'products')]

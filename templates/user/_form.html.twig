@@ -1,4 +1,22 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{{ form_start(form, {attr: {class: 'space-y-6'}}) }}
+
+    <div>
+        <span class="block text-xs font-medium text-apple-gray uppercase tracking-wider mb-3">Roles</span>
+        <div class="flex flex-wrap gap-2">
+            {% for choice in form.roles %}
+                <label class="inline-flex items-center cursor-pointer select-none border border-apple-border rounded-full px-4 py-1.5 text-sm text-apple-dark hover:border-purple-400 transition-all has-[:checked]:bg-purple-600 has-[:checked]:text-white has-[:checked]:border-purple-600">
+                    {{ form_widget(choice, {attr: {class: 'sr-only'}}) }}
+                    {{ choice.vars.label }}
+                </label>
+            {% endfor %}
+        </div>
+        {{ form_errors(form.roles) }}
+    </div>
+
+    <div class="pt-2">
+        <button class="text-sm bg-apple-dark text-white px-4 py-2 rounded-full hover:bg-black transition-colors">
+            {{ button_label|default('Save') }}
+        </button>
+    </div>
+
 {{ form_end(form) }}
