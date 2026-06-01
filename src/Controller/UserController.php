@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Uid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -32,15 +33,23 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $rawUuid = $request->request->get('raw_uuid', '');
+            if ($rawUuid === '') {
+                $rawUuid = Uuid::v4()->toRfc4122();
+            }
+            $user->setUuid($rawUuid);
             $entityManager->persist($user);
             $entityManager->flush();
+
+            $this->addFlash('success', 'User created. UUID: ' . $rawUuid);
 
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('user/new.html.twig', [
-            'user' => $user,
-            'form' => $form,
+            'user'    => $user,
+            'form'    => $form,
+            'rawUuid' => Uuid::v4()->toRfc4122(),
         ]);
     }
 

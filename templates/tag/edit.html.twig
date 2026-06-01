@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+{% block title %}Edit Tag — Apple Time Machine{% endblock %}
+
+{% block body %}
+<div class="max-w-md mx-auto px-6 py-12">
+    <a href="{{ path('app_tag_index') }}" class="text-sm text-apple-blue hover:underline">← Tags</a>
+
+    <h1 class="text-3xl font-bold tracking-tight text-apple-dark mt-4 mb-8">Edit tag</h1>
+
+    {{ form_start(form, {attr: {class: 'space-y-5'}}) }}
+        <div>
+            {{ form_label(form.name, null, {label_attr: {class: 'block text-xs text-apple-gray mb-1'}}) }}
+            {{ form_widget(form.name, {attr: {class: 'w-full border border-apple-border rounded-lg px-3 py-2 text-sm text-apple-dark focus:outline-none focus:border-apple-blue transition-colors bg-white'}}) }}
+            {{ form_errors(form.name) }}
+        </div>
+        <div class="flex items-center gap-4">
+            <button type="submit"
+                    class="px-5 py-2.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
+                Save changes
+            </button>
+            <form method="post" action="{{ path('app_tag_delete', {id: tag.id}) }}"
+                  onsubmit="return confirm('Delete tag « {{ tag.name }} »?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_tag_' ~ tag.id) }}">
+                <button type="submit"
+                        class="px-5 py-2.5 text-sm font-medium rounded-full border border-red-300 text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer">
+                    Delete
+                </button>
+            </form>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}

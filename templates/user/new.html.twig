@@ -1,11 +1,43 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}New User{% endblock %}
+{% block title %}New User — Apple Time Machine{% endblock %}
 
 {% block body %}
-    <h1>Create new User</h1>
+<div class="max-w-md mx-auto px-6 py-12">
+    <a href="{{ path('app_user_index') }}" class="text-sm text-apple-blue hover:underline">← Users</a>
 
-    {{ include('user/_form.html.twig') }}
+    <h1 class="text-3xl font-bold tracking-tight text-apple-dark mt-4 mb-8">New user</h1>
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
+    {# UUID display — visible before it gets hashed on save #}
+    <div class="mb-6 p-4 bg-apple-light border border-apple-border rounded-2xl">
+        <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-2">Generated UUID — share this with the user</p>
+        <div class="flex items-center gap-3">
+            <code id="uuid-display" class="flex-1 text-sm font-mono text-apple-dark break-all">{{ rawUuid }}</code>
+            <button type="button"
+                    onclick="navigator.clipboard.writeText('{{ rawUuid }}').then(() => { const btn = this; btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 1500); })"
+                    class="shrink-0 px-3 py-1.5 text-xs font-medium border border-apple-border rounded-full text-apple-dark bg-white hover:border-apple-dark transition-colors cursor-pointer">
+                Copy
+            </button>
+        </div>
+    </div>
+
+    {{ form_start(form, {attr: {class: 'space-y-5'}}) }}
+        <input type="hidden" name="raw_uuid" value="{{ rawUuid }}">
+        <div>
+            <span class="block text-xs text-apple-gray mb-2">Roles</span>
+            <div class="flex flex-wrap gap-2">
+                {% for choice in form.roles %}
+                    <label class="cursor-pointer inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full border border-apple-border text-apple-dark bg-white has-[:checked]:bg-apple-dark has-[:checked]:text-white has-[:checked]:border-apple-dark transition-colors select-none">
+                        {{ form_widget(choice, {attr: {class: 'sr-only'}}) }}
+                        {{ choice.vars.label }}
+                    </label>
+                {% endfor %}
+            </div>
+            {{ form_errors(form.roles) }}
+        </div>
+        <button type="submit"
+                class="px-5 py-2.5 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors cursor-pointer">
+            Create user
+        </button>
+    {{ form_end(form) }}
+</div>
 {% endblock %}

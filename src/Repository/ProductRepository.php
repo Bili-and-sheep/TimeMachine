@@ -57,4 +57,28 @@ class ProductRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** @return Product[] */
+    public function findSimilarByTags(Product $product, int $limit = 4): array
+    {
+        $tagIds = $product->getTags()->map(fn($t) => $t->getId())->toArray();
+
+        if (empty($tagIds)) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('p')
+            ->join('p.tags', 't')
+            ->where('p.status = :status')
+            ->andWhere('p.id != :id')
+            ->andWhere('t.id IN (:tags)')
+            ->setParameter('status', SubmissionStatus::Approved)
+            ->setParameter('id', $product->getId())
+            ->setParameter('tags', $tagIds)
+            ->groupBy('p.id')
+            ->orderBy('COUNT(t.id)', 'DESC')
+            ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
 }

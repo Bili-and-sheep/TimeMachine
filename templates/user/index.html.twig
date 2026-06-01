@@ -1,37 +1,53 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}User index{% endblock %}
+{% block title %}User Management — Apple Time Machine{% endblock %}
 
 {% block body %}
-    <h1>User index</h1>
+<div class="max-w-4xl mx-auto px-6 py-12">
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Uuid</th>
-                <th>Roles</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.uuid }}</td>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-                <td>
-                    <a href="{{ path('app_user_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="4">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-1">Admin</p>
+            <h1 class="text-4xl font-bold tracking-tight text-apple-dark">Users</h1>
+        </div>
+        <a href="{{ path('app_user_new') }}"
+           class="px-4 py-2 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors">
+            + New user
+        </a>
+    </div>
 
-    <a href="{{ path('app_user_new') }}">Create new</a>
+    {% if users is empty %}
+        <p class="text-sm text-apple-gray">No users found.</p>
+    {% else %}
+        <div class="divide-y divide-apple-border border border-apple-border rounded-2xl overflow-hidden">
+            {% for user in users %}
+                <div class="flex items-center justify-between px-5 py-3.5 bg-white hover:bg-apple-light transition-colors">
+                    <div class="flex flex-col min-w-0 gap-1">
+                        <span class="text-sm font-medium text-apple-dark font-mono truncate">{{ user.uuid }}</span>
+                        <div class="flex flex-wrap gap-1">
+                            {% for role in user.roles %}
+                                <span class="px-2 py-0.5 text-[10px] font-medium rounded-full border
+                                    {{ role == 'ROLE_ADMIN'    ? 'bg-red-50 border-red-200 text-red-600' :
+                                       role == 'ROLE_BARISTA'  ? 'bg-purple-50 border-purple-200 text-purple-600' :
+                                       role == 'ROLE_REVIEWER' ? 'bg-blue-50 border-blue-200 text-blue-600' :
+                                       'bg-apple-light border-apple-border text-apple-gray' }}">
+                                    {{ role|replace({'ROLE_': ''}) }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0 ml-4">
+                        <a href="{{ path('app_user_edit', {id: user.id}) }}"
+                           class="text-xs text-apple-blue hover:underline">Edit</a>
+                        <form method="post" action="{{ path('app_user_delete', {id: user.id}) }}"
+                              onsubmit="return confirm('Delete user {{ user.uuid }}?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                            <button type="submit" class="text-xs text-red-500 hover:underline cursor-pointer">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
 {% endblock %}
