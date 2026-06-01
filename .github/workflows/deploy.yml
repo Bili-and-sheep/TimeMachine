@@ -22,5 +22,8 @@ jobs:
                 APP_ENV=prod php bin/console cache:clear
                 APP_ENV=prod php bin/console cache:warmup
                 APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction
+                APP_ENV=prod php bin/console app:populate-tags
+                mkdir -p public/uploads/products
+                chmod -R 775 public/uploads
                 sudo systemctl reload php8.4-fpm
                 sudo systemctl reload apache2
