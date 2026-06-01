@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+{% block title %}Tag Management — Apple Time Machine{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto px-6 py-12">
+
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <p class="text-[10px] text-apple-gray uppercase tracking-widest mb-1">Admin</p>
+            <h1 class="text-4xl font-bold tracking-tight text-apple-dark">Tags</h1>
+        </div>
+        <a href="{{ path('app_tag_new') }}"
+           class="px-4 py-2 bg-apple-blue text-white text-sm font-medium rounded-full hover:bg-[#0077ed] transition-colors">
+            + New tag
+        </a>
+    </div>
+
+    {% if tags is empty %}
+        <p class="text-sm text-apple-gray">No tags yet.</p>
+    {% else %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-px bg-apple-border border border-apple-border rounded-2xl overflow-hidden">
+            {% for tag in tags %}
+                <div class="flex items-center justify-between px-4 py-3 bg-white hover:bg-apple-light transition-colors">
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-sm font-medium text-apple-dark truncate">{{ tag.name }}</span>
+                        <span class="text-xs text-apple-gray">{{ tag.products|length }} product{{ tag.products|length != 1 ? 's' }}</span>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0 ml-3">
+                        <a href="{{ path('app_tag_edit', {id: tag.id}) }}"
+                           class="text-xs text-apple-blue hover:underline">Edit</a>
+                        <form method="post" action="{{ path('app_tag_delete', {id: tag.id}) }}"
+                              onsubmit="return confirm('Delete tag « {{ tag.name }} »?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_tag_' ~ tag.id) }}">
+                            <button type="submit" class="text-xs text-red-500 hover:underline cursor-pointer">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

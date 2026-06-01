@@ -261,21 +261,6 @@
     </div>
 </section>
 
-{# ── TAGS ── #}
-{% if product.tags is not empty %}
-<section class="border-t border-apple-border bg-[#f5f5f7] py-12">
-    <div class="max-w-[680px] mx-auto px-6">
-        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-4">Archive tags</h2>
-        <div class="flex flex-wrap gap-2">
-            {% for tag in product.tags %}
-                <span class="px-3 py-1 bg-white border border-apple-border text-apple-dark text-xs rounded-full font-medium">
-                    {{ tag.name }}
-                </span>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
 
 {# ── SOURCES ── #}
 {% if product.sources %}
@@ -296,6 +281,20 @@
             {% for image in product.images %}
                 <img src="{{ image.path }}" alt="{{ product.productName }}"
                      class="w-full aspect-square object-contain bg-white rounded-2xl p-4">
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ── RELATED PRODUCTS ── #}
+{% if relatedProducts is not empty %}
+<section class="border-t border-apple-border bg-[#f5f5f7] py-14">
+    <div class="max-w-[980px] mx-auto px-6">
+        <h2 class="text-xs uppercase tracking-widest text-apple-gray font-medium mb-6">You might also like</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-apple-border overflow-hidden rounded-2xl">
+            {% for related in relatedProducts %}
+                {% include 'product/_product_card.html.twig' with {product: related} %}
             {% endfor %}
         </div>
     </div>
