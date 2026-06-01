@@ -82,7 +82,7 @@ class ProductFormType extends AbstractType
                 'constraints' => [
                     new All(constraints: [
                         new Image(
-                            maxSize: '15M',
+                            maxSize: '20M',
                             mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
                             mimeTypesMessage: 'Please upload a valid image (JPEG, PNG, or WebP).',
                         ),

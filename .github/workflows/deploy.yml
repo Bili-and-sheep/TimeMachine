@@ -23,6 +23,7 @@ jobs:
                 APP_ENV=prod php bin/console cache:warmup
                 APP_ENV=prod php bin/console doctrine:migrations:migrate --no-interaction
                 mkdir -p public/uploads/products
+                chown -R www-data:www-data public/uploads var/cache/prod
                 chmod -R 775 public/uploads
                 sudo systemctl reload php8.4-fpm
                 sudo systemctl reload apache2

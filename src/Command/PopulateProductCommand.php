@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\OperatingSystem;
 use App\Entity\Product;
 use App\Entity\ProductType;
+use App\Entity\Tag;
 use App\Entity\User;
 use App\Enum\OsFamily;
 use App\Enum\SubmissionStatus;
@@ -35,6 +36,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['iOS', '1.0'],
             'lastSupportedOS'  => ['iOS', '3.1'],
             'description'      => 'The phone that changed everything. Steve Jobs introduced it as "an iPod, a phone, and an internet communicator" rolled into one. Original 2G model, aluminum and glass, no App Store at launch.',
+            'tags'             => ['vintage', 'iOS', 'portable', 'touchscreen', 'cellular', 'consumer', '30-pin'],
         ],
         [
             'type'             => 'iPhone',
@@ -46,6 +48,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['iOS', '3.0'],
             'lastSupportedOS'  => ['iOS', '6.1'],
             'description'      => 'The "S" stood for speed. First iPhone with hardware-accelerated 3D graphics, video recording, voice control, and a 3MP autofocus camera. Remained on sale for three years — Apple\'s longest-running iPhone model at the time.',
+            'tags'             => ['retro', 'iOS', 'portable', 'touchscreen', 'cellular', 'consumer', 'camera', '30-pin'],
         ],
         [
             'type'             => 'iPhone',
@@ -57,6 +60,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['iOS', '9.3'],
             'lastSupportedOS'  => ['iOS', '15.8'],
             'description'      => 'Flagship A9 chip in the beloved 4-inch form factor. For everyone who refused to move on from the iPhone 5 design. One of the most powerful small phones ever made — and Apple discontinued it anyway.',
+            'tags'             => ['retro', 'iOS', 'portable', 'touchscreen', 'cellular', 'consumer', 'lightning'],
         ],
 
         // ── Mac ─────────────────────────────────────────────────────────────────
@@ -70,6 +74,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['macOS', '10.5 Leopard'],
             'lastSupportedOS'  => ['macOS', '10.11 El Capitan'],
             'description'      => 'The last PowerPC-compatible generation in spirit — first MacBook Pro with the penryn Core 2 Duo. Multitouch trackpad, LED-backlit display, and the iconic aluminum unibody that would define Mac design for a decade.',
+            'tags'             => ['retro', 'macOS', 'portable', 'intel', 'pro'],
         ],
         [
             'type'             => 'MacBook',
@@ -81,6 +86,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['macOS', '10.6 Snow Leopard'],
             'lastSupportedOS'  => ['macOS', '10.13 High Sierra'],
             'description'      => 'The last white polycarbonate MacBook. Affordable, durable, and universally loved by students. When Apple discontinued it in favour of the all-aluminum lineup, a generation of Mac users mourned its passing.',
+            'tags'             => ['retro', 'macOS', 'portable', 'intel', 'consumer'],
         ],
         [
             'type'             => 'MacBook',
@@ -92,6 +98,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['macOS', '10.10 Yosemite'],
             'lastSupportedOS'  => ['macOS', '12 Monterey'],
             'description'      => 'One USB-C port. One. The most controversial Mac Apple made in years — and also one of the thinnest, lightest laptops ever. Fanless Core M processor, Retina display, and a butterfly keyboard that divided opinion.',
+            'tags'             => ['modern', 'macOS', 'portable', 'intel', 'consumer', 'usb-c'],
         ],
 
         // ── iPad ────────────────────────────────────────────────────────────────
@@ -105,6 +112,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['iOS', '3.2'],
             'lastSupportedOS'  => ['iOS', '5.1'],
             'description'      => '"What is it good for?" the critics asked. Within 80 days Apple sold three million. The original iPad defined the modern tablet, ran a custom iOS 3.2 build, and made a 9.7-inch IPS screen feel like magic in 2010.',
+            'tags'             => ['retro', 'iOS', 'portable', 'touchscreen', 'consumer', '30-pin'],
         ],
         [
             'type'             => 'iPad',
@@ -116,6 +124,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['iOS', '6.0'],
             'lastSupportedOS'  => ['iOS', '9.3'],
             'description'      => 'The iPad nobody asked for and everyone bought. 7.9 inches, 53% lighter than the iPad 2. Proved that the tablet sweet spot was smaller than Apple originally thought — and led to four generations of the mini line.',
+            'tags'             => ['retro', 'iOS', 'portable', 'touchscreen', 'consumer', 'lightning'],
         ],
         [
             'type'             => 'iPad',
@@ -127,6 +136,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['iOS', '7.0'],
             'lastSupportedOS'  => ['iOS', '12.4'],
             'description'      => '43% thinner than the iPad 4. The name said it all — impossibly light for a 9.7-inch tablet. A9X-class performance before the Pro existed. Set the visual template that every iPad Air and iPad Pro has followed since.',
+            'tags'             => ['retro', 'iOS', 'portable', 'touchscreen', 'consumer', 'lightning'],
         ],
 
         // ── Apple Watch ─────────────────────────────────────────────────────────
@@ -140,6 +150,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['watchOS', '1.0'],
             'lastSupportedOS'  => ['watchOS', '4.3'],
             'description'      => 'The one that started a category. Shipped in three collections — Sport, Watch, and Edition (up to $17,000 in 18-karat gold). Slow by modern standards but a genuine cultural moment. watchOS 1 required an iPhone for every app.',
+            'tags'             => ['vintage', 'watchOS', 'wearable', 'bluetooth', 'consumer'],
         ],
         [
             'type'             => 'Apple Watch',
@@ -151,6 +162,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['watchOS', '4.0'],
             'lastSupportedOS'  => ['watchOS', '8.7'],
             'description'      => 'The first Apple Watch with cellular. Five years on sale — Apple\'s longest-running Watch. The Series 3 was still being sold new until September 2022, making it a rare case of Apple keeping an old watch alive as an entry point.',
+            'tags'             => ['retro', 'watchOS', 'wearable', 'bluetooth', 'cellular', 'consumer'],
         ],
         [
             'type'             => 'Apple Watch',
@@ -162,6 +174,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['watchOS', '7.0'],
             'lastSupportedOS'  => ['watchOS', '8.7'],
             'description'      => 'Blood oxygen sensor, always-on Retina display, and the fastest chip ever in a Watch at the time. Only sold for 13 months before being replaced by the Series 7. The fastest-discontinued Watch in the lineup\'s history.',
+            'tags'             => ['modern', 'watchOS', 'wearable', 'bluetooth', 'cellular', 'consumer'],
         ],
 
         // ── Apple TV ────────────────────────────────────────────────────────────
@@ -175,6 +188,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => null,
             'lastSupportedOS'  => null,
             'description'      => 'Designed to stream content from iTunes to the TV. It had a hard drive (40 or 160 GB), ran a custom Linux-based OS, and required local sync rather than streaming from the cloud. Steve Jobs called it a "hobby" — and he wasn\'t wrong.',
+            'tags'             => ['vintage', 'consumer', 'wireless', 'storage'],
         ],
         [
             'type'             => 'Apple TV',
@@ -186,6 +200,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => null,
             'lastSupportedOS'  => null,
             'description'      => 'The puck that lived under millions of TVs. No App Store, no games, no Siri — just AirPlay, Netflix, and iTunes. At $99 it was an impulse buy. tvOS and the open App Store model arrived only with the 4th generation.',
+            'tags'             => ['retro', 'consumer', 'wireless'],
         ],
         [
             'type'             => 'Apple TV',
@@ -197,6 +212,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['tvOS', '9.0'],
             'lastSupportedOS'  => ['tvOS', '16.6'],
             'description'      => 'The Apple TV that finally got an App Store and Siri. tvOS 9 launched a new era for Apple\'s living room ambitions. Seven years on sale before being quietly discontinued in November 2022, replaced by a 2022 update to the same box.',
+            'tags'             => ['retro', 'tvOS', 'consumer', 'wireless'],
         ],
 
         // ── Accessoires ─────────────────────────────────────────────────────────
@@ -210,6 +226,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => null,
             'lastSupportedOS'  => null,
             'description'      => 'The last iPod classic. 160 GB of music in your pocket. When Apple killed it in 2014 without announcement, fans quietly panicked and bought every remaining unit. The click wheel is now a design icon — and the iPod classic a collector\'s item.',
+            'tags'             => ['retro', 'portable', 'consumer', 'audio', 'storage'],
         ],
         [
             'type'             => 'AirPods',
@@ -221,6 +238,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => null,
             'lastSupportedOS'  => null,
             'description'      => 'The earbuds everyone made fun of — until everyone had them. W1 chip, instant pairing, 5h battery. Launched alongside the iPhone 7 and the removal of the headphone jack. Defined a new product category and a new era of wireless audio.',
+            'tags'             => ['retro', 'consumer', 'audio', 'wireless', 'bluetooth'],
         ],
         [
             'type'             => 'HomePod',
@@ -232,6 +250,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => null,
             'lastSupportedOS'  => null,
             'description'      => 'Audiophile sound in a fabric cylinder. Spatial audio, beamforming tweeters, and a subwoofer that defied its size. Apple discontinued it in early 2023 — just weeks before announcing the 2nd-generation HomePod. A beloved speaker that never found mass adoption.',
+            'tags'             => ['modern', 'consumer', 'audio', 'wireless', 'bluetooth'],
         ],
 
         // ── Other (Server, AirPort…) ────────────────────────────────────────────
@@ -245,6 +264,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => null,
             'lastSupportedOS'  => null,
             'description'      => 'Apple\'s last and best Wi-Fi router. 802.11ac, 3×3 MIMO, Gigabit Ethernet, and a USB port for shared printers and drives. Apple killed the entire AirPort line in April 2018, leaving a hole in the smart home market it never filled.',
+            'tags'             => ['retro', 'consumer', 'networking', 'wireless'],
         ],
         [
             'type'             => 'Accessory',
@@ -256,6 +276,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => null,
             'lastSupportedOS'  => null,
             'description'      => 'A Wi-Fi router with a 2 or 3 TB hard drive built in, for seamless Time Machine backups over the air. The most elegant backup solution Apple ever made. Discontinued the same day as the AirPort Extreme — quietly, without ceremony.',
+            'tags'             => ['retro', 'consumer', 'networking', 'wireless', 'storage'],
         ],
         [
             'type'             => 'Mac Pro',
@@ -267,6 +288,7 @@ class PopulateProductCommand extends Command
             'launchOS'         => ['macOS', '10.5 Leopard'],
             'lastSupportedOS'  => ['macOS', '10.7 Lion'],
             'description'      => 'Apple\'s only rack-mounted server. Dual Xeon processors, up to 32 GB RAM, and Mac OS X Server out of the box. Used in studios, universities, and post-production houses. Discontinued in January 2011 — Apple told customers to buy Mac Pros or Mac minis instead.',
+            'tags'             => ['retro', 'macOS', 'desktop', 'intel', 'enterprise'],
         ],
     ];
 
@@ -288,6 +310,7 @@ class PopulateProductCommand extends Command
 
         $osMap    = $this->buildOsMap();
         $typeMap  = $this->buildTypeMap();
+        $tagMap   = $this->buildTagMap();
         $inserted = 0;
 
         foreach (self::PRODUCTS as $data) {
@@ -307,6 +330,12 @@ class PopulateProductCommand extends Command
             $product->setProductType($type);
             $product->setModifiedByUser($user);
             $product->setStatus(SubmissionStatus::Approved);
+
+            foreach ($data['tags'] ?? [] as $tagName) {
+                if (isset($tagMap[$tagName])) {
+                    $product->addTag($tagMap[$tagName]);
+                }
+            }
 
             if ($data['launchOS']) {
                 $os = $osMap[$data['launchOS'][0] . '|' . $data['launchOS'][1]] ?? null;
@@ -364,6 +393,16 @@ class PopulateProductCommand extends Command
         $map = [];
         foreach ($this->em->getRepository(ProductType::class)->findAll() as $type) {
             $map[$type->getType()] = $type;
+        }
+        return $map;
+    }
+
+    /** @return array<string, Tag> keyed by tag name */
+    private function buildTagMap(): array
+    {
+        $map = [];
+        foreach ($this->em->getRepository(Tag::class)->findAll() as $tag) {
+            $map[$tag->getName()] = $tag;
         }
         return $map;
     }
